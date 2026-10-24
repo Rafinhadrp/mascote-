@@ -1,0 +1,40 @@
+{
+  "name": "mascote-pet",
+  "version": "1.1.0",
+  "description": "Mascote <R/> que vive na sua tela: passeia, rouba o mouse, se esconde e deixa bilhetes",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "empacotar": "electron-builder --win portable --x64 --publish never"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "br.com.rafinhadr.mascote",
+    "productName": "Mascote R",
+    "files": [
+      "main.js",
+      "preload.js",
+      "desktop.html",
+      "desktop.js",
+      "mascote-pet.js",
+      "config.json",
+      "sprites/**"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "sprites/icone-256.png"
+    },
+    "portable": {
+      "artifactName": "MascoteR.exe"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rafinhadrp/mascote-"
+  }
+}

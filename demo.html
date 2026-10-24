@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mascote R — demo</title>
+  <style>
+    :root { color-scheme: dark; --fundo: #0d1117; --cartao: #161b22; --borda: #30363d; --texto: #e6edf3; --fraco: #8b949e; --azul: #58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--fundo); color: var(--texto); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; border-bottom: 1px solid var(--borda); flex-wrap: wrap; }
+    .logo { font: 700 20px ui-monospace, Consolas, monospace; color: var(--texto); text-decoration: none; }
+    .logo span { color: var(--azul); }
+    nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    nav a { color: var(--fraco); text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+    nav a:hover { color: var(--texto); background: var(--cartao); }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 16px 160px; }
+    h1 { font-size: clamp(28px, 5vw, 44px); margin: 0 0 8px; }
+    p { color: var(--fraco); margin: 0 0 24px; }
+    .acoes { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+    .btn { border: 1px solid var(--borda); background: var(--cartao); color: var(--texto); font: inherit; padding: 10px 18px; border-radius: 8px; cursor: pointer; }
+    .btn:hover { border-color: var(--azul); }
+    .btn.primario { background: #1f6feb; border-color: #1f6feb; font-weight: 600; }
+    .grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .card { background: var(--cartao); border: 1px solid var(--borda); border-radius: 12px; padding: 20px; }
+    .card h3 { margin: 0 0 6px; }
+    .card p { margin: 0 0 16px; }
+    .controle { position: fixed; right: 16px; bottom: 16px; background: var(--cartao); border: 1px solid var(--borda); border-radius: 12px; padding: 12px; display: grid; gap: 8px; width: 210px; z-index: 10; }
+    .controle strong { font-size: 13px; color: var(--fraco); }
+    .controle .btn { padding: 6px 10px; font-size: 14px; }
+    #contador { font-size: 13px; color: var(--fraco); }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="logo" href="#">&lt;rafinhadr<span>/</span>&gt;</a>
+    <nav><a href="#">Início</a><a href="#">Projetos</a><a href="#">Blog</a><a href="#">Contato</a></nav>
+  </header>
+  <main>
+    <h1>Um site qualquer</h1>
+    <p>O <code>&lt;R/&gt;</code> mora aqui agora. Ele passeia, se esconde atrás dos botões e, de vez em quando, rouba o seu mouse.<br>
+       Pra se soltar: sacode o mouse, clica nele ou aperta <kbd>Esc</kbd>. Dá pra pegar ele e arrastar também.</p>
+    <div class="acoes">
+      <button class="btn primario" id="clique">Clica aqui</button>
+      <button class="btn">Outro botão</button>
+      <a class="btn" href="#">Um link</a>
+    </div>
+    <p id="contador">Cliques no botão azul: 0</p>
+    <div class="grade">
+      <div class="card"><h3>Bot de whitelist</h3><p>Painel, perguntas e análise por botões.</p><button class="btn">Ver projeto</button></div>
+      <div class="card"><h3>Mascote</h3><p>Pixel-art gerado em Python, pixel por pixel.</p><button class="btn">Ver projeto</button></div>
+      <div class="card"><h3>Pet de tela</h3><p>Este bichinho que está te olhando agora.</p><button class="btn">Ver projeto</button></div>
+    </div>
+  </main>
+
+  <div class="controle">
+    <strong>Mandar ele fazer:</strong>
+    <button class="btn" data-t="roubar">🖱️ Roubar o mouse</button>
+    <button class="btn" data-t="esconder">🙈 Se esconder</button>
+    <button class="btn" data-t="bilhete">📝 Deixar bilhete</button>
+    <button class="btn" data-t="programar">💻 Programar</button>
+    <button class="btn" data-t="dormir">😴 Dormir</button>
+  </div>
+
+  <script src="mascote-pet.js"></script>
+  <script>
+    let cliques = 0;
+    document.getElementById('clique').addEventListener('click', () => {
+      document.getElementById('contador').textContent = `Cliques no botão azul: ${++cliques}`;
+    });
+    for (const b of document.querySelectorAll('[data-t]')) {
+      // espera o mouse sair do botão pra ele ter o que roubar
+      b.addEventListener('click', () => setTimeout(() => MascotePet.atual.travessura(b.dataset.t), 300));
+    }
+  </script>
+</body>
+</html>

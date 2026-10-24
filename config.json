@@ -1,0 +1,28 @@
+{
+  "tamanho": 64,
+  "falas": true,
+  "travessuras": {
+    "roubarMouse": true,
+    "esconder": true,
+    "bilhetes": true
+  },
+  "botoesDeOutrosApps": true,
+  "intervaloRoubo": [
+    25,
+    70
+  ],
+  "intervaloBilhete": [
+    60,
+    180
+  ],
+  "sonoDepoisDe": 45,
+  "mensagens": [
+    "Bebe água! 💧",
+    "Já fez commit hoje?",
+    "O bug tá na linha 42.",
+    "</> rafinhadr passou por aqui",
+    "Vai dormir, já tá tarde 😴",
+    "Sorria, você tá sendo observado 👀",
+    "Ctrl+S salva vidas."
+  ]
+}
