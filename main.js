@@ -6,7 +6,7 @@
  * com o mesmo mascote-pet.js do site. No Windows ele arrasta o mouse de verdade e se esconde
  * atrás dos botões e janelas dos outros programas.
  */
-const { app, BrowserWindow, Menu, Tray, ipcMain, nativeImage, screen } = require('electron');
+const { app, BrowserWindow, Menu, Tray, ipcMain, nativeImage, screen, shell } = require('electron');
 const { spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -49,6 +49,49 @@ function log(...partes) {
   try {
     fs.appendFileSync(path.join(app.getPath('userData'), 'mascote-log.txt'), `[${new Date().toISOString()}] ${partes.join(' ')}\n`);
   } catch { /* ignora */ }
+}
+
+// ---------------------------------------------------------------- letras das músicas
+// Ficam só no seu computador: %APPDATA%\mascote-pet\letras, um .txt por música
+// (o nome do arquivo é o nome da música). Ele canta uma linha de cada vez, em legenda.
+
+const pastaLetras = () => path.join(app.getPath('userData'), 'letras');
+
+function prepararPastaLetras() {
+  try {
+    fs.mkdirSync(pastaLetras(), { recursive: true });
+    const leia = path.join(pastaLetras(), 'LEIA-ME.txt');
+    if (!fs.existsSync(leia)) {
+      fs.writeFileSync(leia, [
+        'Letras pro mascote cantar quando toca violão.',
+        '',
+        'Crie um arquivo .txt pra cada música, com o nome da música, por exemplo:',
+        '  Malbec.txt',
+        '  Te Assumi pro Brasil.txt',
+        '',
+        'Dentro, cole a letra: cada linha vira uma legendinha em cima dele.',
+        'Uma linha em branco vira uma pausa com 🎶.',
+        '',
+        'Se o nome bater com uma música do config.json, ele mostra o artista também.',
+        'Músicas que só existem aqui também entram no repertório.',
+        'Não precisa reiniciar: ele lê a pasta toda vez que vai tocar.',
+      ].join('\r\n'), 'utf8');
+    }
+  } catch (err) {
+    log('letras:', err.message);
+  }
+}
+
+function lerLetras() {
+  const letras = {};
+  try {
+    for (const arquivo of fs.readdirSync(pastaLetras())) {
+      if (!arquivo.toLowerCase().endsWith('.txt') || arquivo === 'LEIA-ME.txt') continue;
+      const texto = fs.readFileSync(path.join(pastaLetras(), arquivo), 'utf8').replace(/^\uFEFF/, '');
+      letras[arquivo.slice(0, -4)] = texto.split(/\r?\n/).map((l) => l.trim());
+    }
+  } catch { /* pasta vazia ou sem acesso */ }
+  return letras;
 }
 
 // ---------------------------------------------------------------- Windows (PowerShell)
@@ -289,6 +332,7 @@ function criarBandeja() {
     { label: 'Deixar um bilhete', click: comando('bilhete') },
     { label: 'Contar uma curiosidade', click: comando('curiosidade') },
     { label: 'Tocar violão', click: comando('violao') },
+    { label: 'Abrir pasta das letras', click: () => { prepararPastaLetras(); shell.openPath(pastaLetras()); } },
     { label: 'Dançar', click: comando('dancar') },
     { label: 'Programar', click: comando('programar') },
     { label: 'Dormir', click: comando('dormir') },
@@ -330,6 +374,8 @@ ipcMain.handle('info', () => {
   };
 });
 
+ipcMain.handle('letras', () => lerLetras());
+
 ipcMain.handle('esconderijos', async () => {
   if (!consulta || !janela) return null;
   const r = await consulta.pedir(config().botoesDeOutrosApps !== false);
@@ -368,6 +414,7 @@ if (!app.requestSingleInstanceLock()) {
 } else {
   app.whenReady().then(() => {
     ajustes = lerJson(arquivoAjustes());
+    prepararPastaLetras();
     movedor = criarMovedor();
     consulta = criarConsulta();
     criarJanela();

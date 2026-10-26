@@ -37,7 +37,8 @@ O `.exe` é gerado sozinho pelo GitHub (aba **Actions**) a cada mudança neste r
 - 📬 Tira um **bilhete** do bolso onde estiver e leva até o **canto de baixo da tela, igual notificação do
   Windows**. Ficam empilhados (no máximo 3), somem sozinhos depois de um tempo ou no ×.
 - 📣 Vai pra um canto da tela, **pula e chama**: *"ei, ei! Você sabia que o Rafinha é o mais lindo do Brasil?"*
-- 🎸 **Senta na barra de tarefas** com as perninhas penduradas e **toca violão**.
+- 🎸 **Senta na barra de tarefas** com as perninhas penduradas e **toca violão**: anuncia a música
+  (*"🎸 tocando: Malbec — Henrique & Diego e Dennis DJ"*), cantarola e agradece o público no final.
 - Se esconde atrás de botões e janelas, espiando. Chegou perto? Leva um susto e foge.
 - Dança, programa no notebook, fica pensando, boceja e dorme quando você some.
 - Avisa a hora cheia (*"15h! bebe uma água 💧"*), lembra do almoço ao meio-dia e comemora a **sexta-feira** 🎉.
@@ -65,6 +66,19 @@ O `.exe` é gerado sozinho pelo GitHub (aba **Actions**) a cada mudança neste r
 > **Funciona melhor no Windows.** No macOS ele roda, mas não rouba o mouse nem acha os botões dos outros
 > apps. No Linux rouba o mouse se tiver o `xdotool`.
 
+## 🎤 Letras pro violão
+
+Quando toca violão, ele anuncia a música e cantarola. Se você colocar a letra, ele **canta em legendinha**, uma
+linha por vez, em cima dele:
+
+1. Clique no ícone dele perto do relógio → **Abrir pasta das letras**
+   (fica em `%APPDATA%\mascote-pet\letras`).
+2. Crie um `.txt` com o nome da música (ex.: `Malbec.txt`) e cole a letra dentro. Cada linha vira uma legenda;
+   linha em branco vira uma pausa com 🎶.
+3. Pronto. Não precisa reiniciar. Música que só existe na pasta também entra no repertório.
+
+As letras ficam só no seu computador; não vão pro GitHub.
+
 ## ⚙️ Configurando
 
 O que dá pra mudar pelo menu do ícone fica salvo sozinho. O resto está no **`config.json`** (precisa gerar o
@@ -79,6 +93,7 @@ O que dá pra mudar pelo menu do ícone fica salvo sozinho. O resto está no **`
 | `sonoDepoisDe` | segundos sem mexer o mouse até ele dormir |
 | `mensagens` | textos dos bilhetes |
 | `bilheteSomeDepois` | segundos até o bilhete sumir sozinho (`0` = só fecha no ×) |
+| `musicas` | o que ele toca no violão: `{ "musica": "...", "artista": "..." }` |
 | `curiosidades` | o que ele grita no canto da tela (*"você sabia que..."*) |
 
 Se algo der errado, tem um log em `%APPDATA%\mascote-pet\mascote-log.txt`.

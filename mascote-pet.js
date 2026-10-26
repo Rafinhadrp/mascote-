@@ -80,7 +80,9 @@
     bilhete: ['tenho um recado!', 'chegou correspondência 📬', 'peraí, deixa eu achar...', 'assina aqui 📝'],
     bilheteEntregue: ['tá no cantinho 📬', 'não esquece de ler!', 'entregue ✅', 'recado dado!'],
     chamar: ['ei, ei!', 'EI! aqui!', 'psiu! 👋', 'olha pra cá!'],
-    violao: ['🎸 tocando um sonzinho', '🎶 la la la', '🎸 pedido do público?', '🎵 tô no ritmo', '🎸 essa é pra você'],
+    cantarolar: ['♪ la la laiá ♪', '🎶 hmm hmm hmm', '♪ pa ra ra ♪', '♪ uô uô uô ♪', '🎵 na na na', '♪ laiá laiá ♪',
+      '🎶 tchu tchu ru', '♪ êêê ♪', '♪ ô ô ô ♪', '🎶 (solo de violão)'],
+    aplausos: ['obrigado, obrigado 🙇', 'valeu, galera! 🎸', 'quem pediu essa? 😄', 'aplausos! 👏', 'bis? 🎶', 'essa foi pra você ❤️'],
     moonwalk: ['hee-hee! 🕺', 'moonwalk 😎', 'cê viu isso?!'],
     sextou: ['SEXTOU! 🎉', 'sextouuu 🎉🕺'],
     almoco: ['hora do almoço! 🍔', 'já almoçou? 🍽️'],
@@ -103,6 +105,22 @@
       'Postura! Endireita essa coluna 🧘', 'Pisca o olho, descansa a vista 👀', 'Já salvou o arquivo?',
       'Você tá indo bem! 💪', 'Lembrete: você é incrível ✨', 'Hora de uma pausa pro café ☕',
       'Não esquece de responder aquela mensagem 📱', 'Fecha umas abas aí, vai 😅',
+    ],
+    musicas: [ // o que ele toca no violão (só o nome e o artista; ele cantarola a melodia)
+      { musica: 'Te Assumi pro Brasil', artista: 'Matheus & Kauan' },
+      { musica: 'Seu Astral', artista: 'Jorge & Mateus' },
+      { musica: 'Malbec', artista: 'Henrique & Diego e Dennis DJ' },
+      { musica: 'Vai Cair Água', artista: 'Zé Neto & Cristiano' },
+      { musica: 'Dona', artista: 'Luan Santana e Léo Foguete' },
+      { musica: 'Eu Era', artista: 'Marcos & Belutti' },
+      { musica: 'Não Namora', artista: 'Zé Neto & Cristiano' },
+      { musica: 'Postinho de Gasolina' },
+      { musica: 'Entregador de Flor', artista: 'Diego & Victor Hugo' },
+      { musica: 'Tem Que Sorrir', artista: 'Jorge & Mateus' },
+      { musica: 'Barulho do Foguete', artista: 'Zé Neto & Cristiano' },
+      { musica: 'Cadeira Cativa', artista: 'Zé Neto & Cristiano' },
+      { musica: 'Me Encontra', artista: 'Charlie Brown Jr.' },
+      { musica: 'Como Tudo Deve Ser', artista: 'Charlie Brown Jr.' },
     ],
     curiosidades: [
       'Você sabia que o Rafinha é o mais lindo do Brasil?', 'Você sabia que o Rafinha programa até dormindo?',
@@ -736,13 +754,49 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
         pos.y = beirada + 3 * s; // no sprite, a beirada fica 3 px acima da linha dos pés
         virado = false;
         sprite('violao');
-        falar(frase('violao'), 2500);
-        await esperar(t, aleatorio(10000, 18000), () => {
-          if (Math.random() < 0.002) falar(frase('violao'), 2200);
-        });
+        const { musica, letra } = await escolherMusica();
+        const nome = musica.artista ? `${musica.musica} — ${musica.artista}` : musica.musica;
+        falar(`🎸 tocando: ${nome}`, 3800);
+        await esperar(t, 3800);
+        if (letra) {
+          // canta em legenda, uma linha por vez; linha em branco vira pausa instrumental
+          for (const linha of letra) {
+            const ms = linha ? limitar(1600 + linha.length * 75, 2200, 5500) : 1800;
+            falar(linha ? `♪ ${linha} ♪` : '🎶', ms);
+            await esperar(t, ms + 150);
+          }
+        } else {
+          const fim = agora() + aleatorio(12000, 20000);
+          while (agora() < fim) {
+            falar(frase('cantarolar'), 2300);
+            await esperar(t, aleatorio(2700, 4200));
+          }
+        }
+        falar(frase('aplausos'), 2400);
+        await esperar(t, 2400);
       } finally {
         if (!arrasto) pos.y = beirada - 2 * s;
       }
+    }
+
+    // Escolhe a próxima música do repertório (config + letras que você colocou na pasta)
+    // e acha a letra dela, se tiver.
+    const normalizar = (txt) => String(txt).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    async function escolherMusica() {
+      let letras = {};
+      try { letras = (desktop?.letras && (await desktop.letras())) || {}; } catch { /* sem letras */ }
+      const lista = (o.musicas || []).map((m) => (typeof m === 'string' ? { musica: m } : m));
+      const achar = (m) => Object.keys(letras).find((arq) => normalizar(arq).startsWith(normalizar(m.musica)));
+      for (const arq of Object.keys(letras)) { // músicas que só existem na pasta de letras
+        if (!lista.some((m) => normalizar(arq).startsWith(normalizar(m.musica)))) lista.push({ musica: arq });
+      }
+      if (!lista.length) return { musica: { musica: 'um sonzinho' }, letra: null };
+      const titulo = sacoDe('musicas', lista.map((m) => m.musica));
+      const musica = lista.find((m) => m.musica === titulo) || { musica: titulo };
+      const letra = Array.isArray(musica.letra) ? musica.letra : letras[achar(musica)] || null;
+      // tira as linhas em branco repetidas e limita o tamanho pra ele não ficar uma eternidade
+      const limpa = letra && letra.filter((l, i, a) => l || (i > 0 && a[i - 1])).slice(0, 60);
+      return { musica, letra: limpa && limpa.some(Boolean) ? limpa : null };
     }
 
     async function dancar(t) {

@@ -36,6 +36,63 @@
     "Não esquece de responder aquela mensagem 📱",
     "Fecha umas abas aí, vai 😅"
   ],
+  "musicas": [
+    {
+      "musica": "Te Assumi pro Brasil",
+      "artista": "Matheus & Kauan"
+    },
+    {
+      "musica": "Seu Astral",
+      "artista": "Jorge & Mateus"
+    },
+    {
+      "musica": "Malbec",
+      "artista": "Henrique & Diego e Dennis DJ"
+    },
+    {
+      "musica": "Vai Cair Água",
+      "artista": "Zé Neto & Cristiano"
+    },
+    {
+      "musica": "Dona",
+      "artista": "Luan Santana e Léo Foguete"
+    },
+    {
+      "musica": "Eu Era",
+      "artista": "Marcos & Belutti"
+    },
+    {
+      "musica": "Não Namora",
+      "artista": "Zé Neto & Cristiano"
+    },
+    {
+      "musica": "Postinho de Gasolina"
+    },
+    {
+      "musica": "Entregador de Flor",
+      "artista": "Diego & Victor Hugo"
+    },
+    {
+      "musica": "Tem Que Sorrir",
+      "artista": "Jorge & Mateus"
+    },
+    {
+      "musica": "Barulho do Foguete",
+      "artista": "Zé Neto & Cristiano"
+    },
+    {
+      "musica": "Cadeira Cativa",
+      "artista": "Zé Neto & Cristiano"
+    },
+    {
+      "musica": "Me Encontra",
+      "artista": "Charlie Brown Jr."
+    },
+    {
+      "musica": "Como Tudo Deve Ser",
+      "artista": "Charlie Brown Jr."
+    }
+  ],
   "curiosidades": [
     "Você sabia que o Rafinha é o mais lindo do Brasil?",
     "Você sabia que o Rafinha programa até dormindo?",
