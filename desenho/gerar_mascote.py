@@ -27,6 +27,8 @@ GR = (63, 185, 80)     # código verde
 PU = (210, 168, 255)   # código roxo
 RD = (248, 81, 73)     # erro
 GL = (196, 222, 255)   # brilho da tela refletido no rosto
+MA = (201, 125, 60)    # madeira do violão
+MD = (128, 74, 34)     # madeira escura
 
 
 class Tela:
@@ -84,11 +86,21 @@ OLHOS = {
     'ponto': [(3, 4), (8, 4)],                                               # assustado
     'piscada': [(2, 4), (3, 4), (8, 3), (8, 4)],
     'malvado': [(3, 4), (4, 4), (8, 4), (9, 4)],                             # olhar de lado, meio fechado
+    'mais': [(3, 3), (2, 4), (3, 4), (4, 4), (3, 5), (8, 3), (7, 4), (8, 4), (9, 4), (8, 5)],  # tonto (gira com o x)
+    'chorando': [(2, 4), (3, 4), (4, 4), (7, 4), (8, 4), (9, 4)],
+    'desconfiado_dir': [(4, 4), (4, 5), (9, 4), (9, 5)],
+    'desconfiado_esq': [(2, 4), (2, 5), (7, 4), (7, 5)],
 }
+
+# olhos coloridos desenhados por cima (coração, óculos)
+OLHO_CORACAO = [(0, 0), (2, 0), (0, 1), (1, 1), (2, 1), (1, 2)]
+OCULOS = [(1, 3), (2, 3), (3, 3), (4, 3), (5, 3), (6, 3), (7, 3), (8, 3), (9, 3), (10, 3),
+          (1, 4), (2, 4), (3, 4), (4, 4), (7, 4), (8, 4), (9, 4), (10, 4), (2, 5), (3, 5), (8, 5), (9, 5)]
 
 SOBRANCELHAS = {
     'brava': [(2, 2), (3, 2), (4, 3), (7, 3), (8, 2), (9, 2)],
     'triste': [(2, 3), (3, 2), (4, 2), (7, 2), (8, 2), (9, 3)],
+    'desconfiada': [(2, 2), (3, 2), (4, 2), (7, 1), (8, 1), (9, 2)],
 }
 
 BOCAS = {
@@ -113,6 +125,8 @@ BRILHO = [(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)]
 Z3 = [(0, 0), (1, 0), (2, 0), (1, 1), (0, 2), (1, 2), (2, 2)]
 Z4 = [(0, 0), (1, 0), (2, 0), (3, 0), (2, 1), (1, 2), (0, 3), (1, 3), (2, 3), (3, 3)]
 EXCLAMACAO = [(0, 0), (1, 0), (0, 1), (1, 1), (0, 2), (1, 2), (0, 3), (1, 3), (0, 5), (1, 5)]
+NOTA = [(2, 0), (3, 0), (2, 1), (4, 1), (2, 2), (0, 3), (1, 3), (2, 3), (0, 4), (1, 4)]
+CORACAO = [(0, 0), (2, 0), (0, 1), (1, 1), (2, 1), (1, 2)]
 LOGO = [(1, 0), (0, 1), (1, 2), (5, 0), (4, 1), (3, 2), (7, 0), (8, 1), (7, 2)]  # </>
 
 
@@ -476,6 +490,182 @@ def bocejando():
     return quadros
 
 
+
+def fininho():
+    """Andando de fininho, agachado na ponta dos pés, com cara de quem não quer nada."""
+    quadros = []
+    for f in range(6):
+        t = Tela()
+        passo = (0, 1, 2, 1, 0, 1)[f]
+        _pernas_andando(t, 10, 14, passo)
+        mascote(t, 10, 14, olhos='malvado', boca='malvado' if f < 3 else 'reta', pernas=None,
+                mao_e=(1, -3 + (f % 2)), mao_d=(-1, -2 - (f % 2)), ponta=BD)
+        quadros.append((t.contorno(), 170))
+    return quadros
+
+
+def desconfiado():
+    """Uma sobrancelha levantada, mão no queixo, olho de lado."""
+    seq = ['desconfiado_dir'] * 4 + ['desconfiado_esq'] * 2 + ['desconfiado_dir'] * 2
+    quadros = []
+    for f, olhos in enumerate(seq):
+        t = Tela()
+        mascote(t, 10, 13, olhos=olhos, boca='reta', sobrancelha='desconfiada',
+                mao_e=(3, 3 - (f % 2)), ponta=W if f % 4 < 2 else B)
+        quadros.append((t.contorno(), 250))
+    return quadros
+
+
+def apaixonado():
+    """Olhos de coração e coraçõezinhos subindo."""
+    quadros = []
+    for f in range(10):
+        t = Tela()
+        for ini, x in ((0, 6), (5, 24)):
+            idade = (f - ini) % 10
+            if idade < 7:
+                t.pts(x + (idade % 2), 11 - idade, CORACAO, RD)
+        bob = 1 if f % 4 >= 2 else 0
+        mascote(t, 10, 13, olhos='fechado', boca='sorriso', bochecha=True, bob=bob,
+                mao_e=(1, 1), mao_d=(-1, 1), ponta=RD if f % 2 else W)
+        t.pts(10 + 2, 13 + bob + 3, OLHO_CORACAO, RD)
+        t.pts(10 + 7, 13 + bob + 3, OLHO_CORACAO, RD)
+        quadros.append((t.contorno(), 150))
+    return quadros
+
+
+def chorando():
+    """Chorando de cachoeira (quando você foge dele)."""
+    quadros = []
+    for f in range(8):
+        t = Tela()
+        bob = f % 2
+        y = 13 + bob
+        mascote(t, 10, 13, olhos='chorando', boca='aberta', sobrancelha='triste', bob=bob,
+                mao_e=(2, 1), mao_d=(-2, 1), ponta=BD)
+        for i in range(3):  # as lágrimas escorrem e espirram
+            d = (f + i * 2) % 6
+            t.p(10 + 3 - d // 2, y + 5 + d, B)
+            t.p(10 + 8 + d // 2, y + 5 + d, B)
+        quadros.append((t.contorno(), 110))
+    return quadros
+
+
+def dancando():
+    """Dancinha com notas musicais."""
+    passos = [(-1, 0), (0, 1), (1, 0), (0, 1)]
+    quadros = []
+    for f in range(8):
+        t = Tela()
+        dx, bob = passos[f % 4]
+        cima = f % 4 < 2
+        t.pts(4 if f < 4 else 25, 6 - (f % 4), NOTA, B if f % 2 else W)
+        mascote(t, 10 + dx, 13, olhos='feliz', boca='sorriso', bochecha=True, bob=bob,
+                mao_e=(0, -4) if cima else (0, 1), mao_d=(0, 1) if cima else (0, -4), ponta=B if f % 2 else W)
+        quadros.append((t.contorno(), 150))
+    return quadros
+
+
+def estiloso():
+    """De óculos escuros, todo convencido (depois de roubar o mouse)."""
+    quadros = []
+    for f in range(8):
+        t = Tela()
+        bob = 1 if f in (2, 3, 6, 7) else 0
+        mascote(t, 10, 13, olhos='aberto', boca='malvado', bob=bob, mao_d=(1, -4), ponta=B if f % 2 else W)
+        t.pts(10, 13 + bob, OCULOS, K)
+        if f in (0, 1):
+            t.p(10 + 3, 13 + bob + 3, W)
+            t.p(10 + 9, 13 + bob + 3, W)
+        quadros.append((t.contorno(), 160))
+    return quadros
+
+
+def tonto():
+    """Olhos girando e estrelinhas em volta da cabeça (depois de ser arrastado)."""
+    roda = [(4, 7), (8, 4), (16, 3), (24, 4), (27, 7), (16, 9)]
+    quadros = []
+    for f in range(8):
+        t = Tela()
+        dx = (0, 1, 0, -1)[f % 4]
+        for i in range(2):
+            x, y = roda[(f + i * 3) % len(roda)]
+            t.pts(x, y, BRILHO, W if i else B)
+        mascote(t, 10 + dx, 13, olhos='x' if f % 2 else 'mais', boca='o', mao_e=(-dx, 1), mao_d=(-dx, 1),
+                ponta=W if f % 2 else B)
+        quadros.append((t.contorno(), 120))
+    return quadros
+
+
+
+def violao():
+    """Sentadinho na beirada (a barra de tarefas), pernas penduradas, tocando violão no colo.
+    A beirada fica na linha 21 da grade e as pernas balançam pra baixo dela."""
+    quadros = []
+    for f in range(8):
+        t = Tela()
+        ox, oy = 10, 12
+        bob = 1 if f % 4 == 1 else 0
+        y = oy + bob
+        # notas subindo
+        idade = f % 8
+        t.pts(26 + idade % 2, 8 - idade // 2, NOTA, B if f % 2 else W)
+        if f >= 4:
+            t.pts(3 - idade % 2, 12 - (f - 4) * 2, NOTA, W)
+        # pernas penduradas, balançando uma de cada vez
+        t.ret(ox + 2, oy + 9, 2, 3 if f % 4 < 2 else 2, W)
+        t.ret(ox + 8, oy + 9, 2, 2 if f % 4 < 2 else 3, W)
+        mascote(t, ox, oy, olhos='feliz' if f % 8 < 6 else 'fechado', boca='sorriso' if f % 4 < 2 else 'o',
+                bochecha=True, bob=bob, pernas=None, mao_e=(0, 99), mao_d=(0, 99), ponta=B if f % 2 else W)
+
+        # violão no colo: corpo em 8 (bojo maior, cintura, bojo menor), braço curto e cabeça pequena
+        g = y + 7
+        corpo = set()
+        for dy, (x0, x1) in enumerate([(5, 7), (4, 8), (3, 9), (3, 9), (3, 9), (4, 8), (5, 7)]):
+            corpo.update((x, g + dy) for x in range(x0, x1 + 1))
+        corpo.update((10, g + dy) for dy in range(2, 5))
+        for dy, (x0, x1) in enumerate([(12, 14), (11, 15), (11, 15), (11, 15), (12, 14)]):
+            corpo.update((x, g + 1 + dy) for x in range(x0, x1 + 1))
+        for x, yy in corpo:  # borda escura, tampo claro
+            vizinhos = ((x + 1, yy), (x - 1, yy), (x, yy + 1), (x, yy - 1))
+            t.p(x, yy, MA if all(v in corpo for v in vizinhos) else MD)
+        t.pts(13, g + 2, [(0, 0), (-1, 1), (0, 1), (1, 1), (0, 2)], K)  # boca
+        t.ret(5, g + 2, 1, 3, MD)                                       # cavalete
+        t.ret(6, g + 3, 5, 1, S)                                        # cordas
+        # braço curto subindo de leve, com trastes
+        for i, xx in enumerate(range(16, 23)):
+            t.ret(xx, g + 2 - (i >= 4), 1, 2, S if i in (2, 5) else MD)
+        # cabeça com tarraxas
+        t.ret(23, g, 3, 3, MA)
+        t.p(23, g, MD)
+        for xx in (23, 25):
+            t.p(xx, g - 1, S)
+            t.p(xx, g + 3, S)
+        # mãos: uma no braço, a outra batendo nas cordas
+        t.pts(19, g - 1, MAOS['>'], B)
+        t.pts(6, g - 1 + (f % 2) * 2, MAOS['<'], B)
+        quadros.append((t.contorno(), 140))
+    return quadros
+
+
+def chamando():
+    """Pulando e acenando pra chamar atenção: "ei, ei!"."""
+    pulo = [0, -2, -4, -5, -4, -2, 0, 1]
+    quadros = []
+    for f, dy in enumerate(pulo):
+        t = Tela()
+        no_ar = dy < 0
+        mao = (0, -6) if f % 2 else (2, -5)
+        mascote(t, 10, 13, olhos='feliz' if no_ar else 'aberto', boca='aberta', bochecha=True, bob=dy,
+                pernas='pulo' if no_ar or dy > 0 else 'pe', mao_e=(-1, -4 if no_ar else 0), mao_d=mao,
+                ponta=B if f % 2 else W)
+        if f % 4 < 2:
+            t.ret(28, 4 + dy, 1, 2, B)
+            t.ret(30, 7 + dy, 2, 1, B)
+        quadros.append((t.contorno(), 75))
+    return quadros
+
+
 ANIMACOES = {
     'parado': parado,
     'digitando': digitando,
@@ -494,6 +684,15 @@ ANIMACOES = {
     'emburrado': emburrado,
     'convencido': convencido,
     'bocejando': bocejando,
+    'fininho': fininho,
+    'desconfiado': desconfiado,
+    'apaixonado': apaixonado,
+    'chorando': chorando,
+    'dancando': dancando,
+    'estiloso': estiloso,
+    'tonto': tonto,
+    'violao': violao,
+    'chamando': chamando,
 }
 
 

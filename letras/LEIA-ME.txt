@@ -1,0 +1,10 @@
+Letras que vão junto no app (MascoteR.exe).
+
+Crie um arquivo .txt pra cada música, com o nome da música, por exemplo:
+  Malbec.txt
+  Te Assumi pro Brasil.txt
+
+Dentro, cole a letra: cada linha vira uma legendinha em cima do mascote.
+Uma linha em branco vira uma pausa com 🎶.
+
+Depois de salvar aqui no GitHub, o .exe novo sai sozinho em Releases.

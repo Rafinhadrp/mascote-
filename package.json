@@ -23,7 +23,8 @@
       "desktop.js",
       "mascote-pet.js",
       "config.json",
-      "sprites/**"
+      "sprites/**",
+      "letras/**"
     ],
     "win": {
       "target": "portable",

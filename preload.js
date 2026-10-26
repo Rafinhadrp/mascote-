@@ -10,6 +10,7 @@ function ouvir(canal, fn) {
 contextBridge.exposeInMainWorld('mascoteDesktop', {
   info: () => ipcRenderer.invoke('info'),
   esconderijos: () => ipcRenderer.invoke('esconderijos'),
+  letras: () => ipcRenderer.invoke('letras'),
   aoMoverCursor: (fn) => ouvir('cursor', (p) => fn(p.x, p.y)),
   aoComando: (fn) => ouvir('comando', fn),
   aoConfig: (fn) => ouvir('config', fn),

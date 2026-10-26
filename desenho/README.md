@@ -11,8 +11,12 @@ Mascote em pixel-art feito a partir da logo **&lt;rafinhadr/&gt;**: o corpo bran
 | ![](gif/andando-128.gif) | ![](gif/carregando-128.gif) | ![](gif/rindo-128.gif) | ![](gif/tramando-128.gif) |
 | **espiando** | **assustado** | **emburrado** | **convencido** |
 | ![](gif/espiando-128.gif) | ![](gif/assustado-128.gif) | ![](gif/emburrado-128.gif) | ![](gif/convencido-128.gif) |
-| **bocejando** | | | |
-| ![](gif/bocejando-128.gif) | | | |
+| **bocejando** | **de fininho** | **desconfiado** | **apaixonado** |
+| ![](gif/bocejando-128.gif) | ![](gif/fininho-128.gif) | ![](gif/desconfiado-128.gif) | ![](gif/apaixonado-128.gif) |
+| **chorando** | **dançando** | **estiloso** | **tonto** |
+| ![](gif/chorando-128.gif) | ![](gif/dancando-128.gif) | ![](gif/estiloso-128.gif) | ![](gif/tonto-128.gif) |
+| **violão** | **chamando** | | |
+| ![](gif/violao-128.gif) | ![](gif/chamando-128.gif) | | |
 
 **programando**
 
@@ -48,7 +52,7 @@ const embed = new EmbedBuilder().setTitle('Deu ruim!').setThumbnail(url);
 await interaction.reply({ embeds: [embed], files: [arquivo] });
 ```
 
-Estados prontos: `parado`, `digitando`, `programando`, `feliz`, `acenando`, `pensando`, `dormindo`, `erro`, `andando`, `carregando`, `rindo`, `tramando`, `espiando`, `assustado`, `emburrado`, `convencido`, `bocejando` (as últimas foram feitas pro pet de tela).
+Estados prontos: `parado`, `digitando`, `programando`, `feliz`, `acenando`, `pensando`, `dormindo`, `erro`, `andando`, `carregando`, `rindo`, `tramando`, `espiando`, `assustado`, `emburrado`, `convencido`, `bocejando`, `fininho`, `desconfiado`, `apaixonado`, `chorando`, `dancando`, `estiloso`, `tonto`, `violao`, `chamando` (as últimas foram feitas pro pet de tela).
 
 ## Mudando ou criando poses
 
