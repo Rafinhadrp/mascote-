@@ -91,7 +91,8 @@ function lerLetras() {
       for (const arquivo of fs.readdirSync(pasta)) {
         if (!arquivo.toLowerCase().endsWith('.txt') || arquivo === 'LEIA-ME.txt') continue;
         const texto = fs.readFileSync(path.join(pasta, arquivo), 'utf8').replace(/^\uFEFF/, '');
-        letras[arquivo.slice(0, -4)] = texto.split(/\r?\n/).map((l) => l.trim());
+        // linhas começando com # são comentários (instruções), não fazem parte da letra
+        letras[arquivo.slice(0, -4)] = texto.split(/\r?\n/).map((l) => l.trim()).filter((l) => !l.startsWith('#'));
       }
     } catch { /* pasta vazia ou sem acesso */ }
   }
