@@ -25,43 +25,91 @@
     parado: {}, andando: {}, carregando: {}, feliz: {}, acenando: {}, pensando: {},
     dormindo: {}, erro: {}, digitando: {}, programando: { largura: 48, centro: 11 },
     rindo: {}, tramando: {}, espiando: {}, assustado: {}, emburrado: {}, convencido: {}, bocejando: {},
+    fininho: {}, desconfiado: {}, apaixonado: {}, chorando: {}, dancando: {}, estiloso: {}, tonto: {},
+    violao: {}, chamando: {},
   };
   const PES_Y = 24;              // linha da grade onde ficam os pés
   const MAO = { x: 11, y: -11 }; // ponta da mão direita no sprite "carregando", relativa aos pés
 
+  // Ele não repete uma frase até ter dito todas da mesma lista. {n} = quantos mouses já roubou hoje.
   const FALAS = {
-    oi: ['oi! eu sou o <R/> 👋', 'cheguei! 👋'],
-    tramar: ['hehe... 😈', 'que mouse bonito...', '*plano maligno*', 'hmmm 😏'],
-    roubar: ['vem cá, mouse!', 'é agora!', 'hehehe'],
-    pegou: ['HEHEHE roubei seu mouse!', 'HAHAHA é meu agora!', 'hihihi peguei!', 'roubadooo 😈'],
-    correndo: ['hehehe', 'hihihi', 'ninguém me pega!', 'HAHAHA', 'tchau mouse 👋'],
+    oi: ['oi! eu sou o <R/> 👋', 'cheguei! 👋', 'opa, bora trabalhar? 👋', 'voltei! sentiu saudade?', 'e aí, beleza? 😄'],
+    bomDia: ['bom dia! ☀️', 'bom dia, já tomou café? ☕'],
+    boaTarde: ['boa tarde! 🌤️', 'boa tarde, bora produzir!'],
+    boaNoite: ['boa noite! 🌙', 'trabalhando a essa hora? 🌙'],
+    tramar: ['hehe... 😈', 'que mouse bonito...', '*plano maligno*', 'hmmm 😏', 'tive uma ideia...', 'muahaha', 'ninguém desconfia de nada...'],
+    desconfiado: ['hmm... 🤨', 'tô de olho em você', 'que cursor suspeito...', 'esse mouse aí...', 'interessante... 🧐', 'nada não... 👀'],
+    curioso: ['👀', 'o que cê tá fazendo?', 'posso ver?', 'hmm, interessante', 'deixa eu ver isso aí'],
+    fininho: ['shhh... 🤫', 'pé ante pé...', 'ninguém tá vendo...', 'devagarinho...', 'modo ninja 🥷', 'nem respira...'],
+    disfarce: ['🎵 fiu fiu...', 'eu? tô só passando', 'nada não 👀', 'que dia lindo, né?', 'só admirando a tela', 'tô parado, ó', 'la la la 🎶'],
+    bote: ['AGORA!', 'É MEU!', 'BOTE!', 'já era!'],
+    quase: ['quase! 😤', 'escapou por pouco...', 'da próxima eu pego', 'mouse liso esse!'],
+    pegou: ['HEHEHE roubei seu mouse!', 'HAHAHA é meu agora!', 'hihihi peguei!', 'roubadooo 😈', 'perdeu, playboy! 😎',
+      'esse mouse agora tem dono!', 'vem pegar se for capaz!', 'achado não é roubado! 🤭', 'obrigado pelo mouse!'],
+    contagem: ['já é o {n}º mouse que eu roubo hoje 😎', '{n} a 0 pra mim!', 'roubo número {n}! recorde?', '{n} roubos hoje e contando...'],
+    silencioso: ['*pega devagarinho*', 'shhh... 🤫', 'ele nem viu...', 'só vou pegar emprestado...'],
+    percebeu: ['opa! 😳', 'ih, me viu!', 'xiii, flagrado!', 'eita! corre!'],
+    largouCanto: ['pronto, tá aqui 🤭', 'deixei ali no cantinho', 'mudei seu mouse de lugar 😇', 'missão cumprida 🥷'],
+    correndo: ['hehehe', 'hihihi', 'ninguém me pega!', 'HAHAHA', 'tchau mouse 👋', 'vruuum 💨', 'pega eu!', 'lalala 🎶'],
     dica: ['(sacode o mouse pra se soltar)'],
-    soltou: ['hmpf! 😤', 'não valeu!', 'eu só tava pegando emprestado...', 'aff 😒'],
-    achou: ['achou! 😱', 'AAAH', 'como me achou?!'],
-    escondido: ['procura aí 😜', 'cadê? cadê? 🤭', 'tá quente... tá frio...'],
-    escondidoComMouse: ['shhh, ninguém vai achar a gente 🤫', 'esconderijo secreto 🤭'],
-    devolveu: ['HAHAHA 🤣', 'toma, pode ficar 😜', 'hehehe foi mal'],
-    resgatou: ['hmpf, achou 😤', 'tava fácil né', 'da próxima eu escondo melhor'],
-    clique: ['oi!', 'hehe', '</>', 'para 😳', 'tô trabalhando!'],
-    cocegas: ['para! tenho cócegas 🤣', 'HAHAHA para!', 'hihihi'],
-    arrastado: ['me põe no chão!', 'eu ando sozinho, tá?', 'tô tonto 😵'],
-    acordou: ['opa! oi 👋', 'eu não tava dormindo'],
-    programar: ['git push --force 😈', 'funciona na minha máquina', 'só mais um commit', 'deploy na sexta?'],
-    pensar: ['hmm...', '🤔', 'e se...'],
-    desistir: ['ah, deixa...', 'rápido demais 😤'],
+    soltou: ['hmpf! 😤', 'não valeu!', 'eu só tava pegando emprestado...', 'aff 😒', 'tá bom, fica com ele', 'injusto!', 'da próxima não escapa!'],
+    choro: ['buáááá 😭', 'era meu mouse...', 'snif snif 😢', 'ninguém me deixa brincar 😭'],
+    achou: ['achou! 😱', 'AAAH', 'como me achou?!', 'não tô aqui!', 'esconderijo ruim esse...'],
+    escondido: ['procura aí 😜', 'cadê? cadê? 🤭', 'tá quente... tá frio...', 'tá esfriando...', 'dica: tá atrás de alguma coisa'],
+    escondidoSozinho: ['shhh 🤫', 'ninguém me vê aqui', 'modo camuflagem', '👀'],
+    escondidoComMouse: ['shhh, ninguém vai achar a gente 🤫', 'esconderijo secreto 🤭', 'quietinho, mouse...'],
+    devolveu: ['HAHAHA 🤣', 'toma, pode ficar 😜', 'hehehe foi mal', 'brincadeirinha!', 'tá devolvido, viu?'],
+    estiloso: ['😎', 'profissional', 'nem viu, né?', 'sou rápido demais', 'estilo é tudo 😎'],
+    resgatou: ['hmpf, achou 😤', 'tava fácil, né', 'da próxima eu escondo melhor', 'sorte de principiante'],
+    clique: ['oi!', 'hehe', '</>', 'para 😳', 'tô trabalhando!', 'pois não?', 'quer alguma coisa?', 'eu!', 'opa!'],
+    cocegas: ['para! tenho cócegas 🤣', 'HAHAHA para!', 'hihihi', 'aí não! 🤣'],
+    chega: ['CHEGA! 😤', 'vou me esconder de você!', 'que mão pesada!'],
+    apaixonado: ['❤️', 'você é legal', 'gosto de você 🥺', 'awn 🥰', 'carinho bom'],
+    carinho: ['carinho? 🥺', 'hihi 🥰', 'mais um pouquinho...'],
+    arrastado: ['tô tonto 😵', 'me põe no chão!', 'eu ando sozinho, tá?', 'o mundo tá girando...', 'uoooou 😵‍💫'],
+    sacudido: ['PARA DE ME SACUDIR!', 'aaaaah 😵‍💫', 'vou vomitar...'],
+    girando: ['para de rodar! 😵', 'tô vendo estrelas ✨', 'rodou, rodou...'],
+    acordou: ['opa! oi 👋', 'eu não tava dormindo', 'que susto!', 'só tava descansando o olho', 'hã? quê? oi!'],
+    sono: ['*bocejo*', 'que sono...', 'vou só fechar o olho...'],
+    dormindo: ['zzz', 'zzz... mouse... zzz', '💤', 'zzz... mais 5 minutinhos...'],
+    programar: ['git push --force 😈', 'funciona na minha máquina', 'só mais um commit', 'deploy na sexta?', 'quem escreveu isso?? ah, fui eu',
+      'console.log("aqui")', 'é feature, não bug', 'hoje vai!', 'esqueci o ponto e vírgula'],
+    pensar: ['hmm...', '🤔', 'e se...', 'tô pensando...', 'será?'],
+    dancar: ['🎵 tum tss tum tss', 'olha o passinho!', '🎶', 'dança comigo!', 'sextou? 🎉'],
+    desistir: ['ah, deixa...', 'rápido demais 😤', 'cansei...', 'depois eu pego'],
+    bilhete: ['tenho um recado!', 'chegou correspondência 📬', 'peraí, deixa eu achar...', 'assina aqui 📝'],
+    bilheteEntregue: ['tá no cantinho 📬', 'não esquece de ler!', 'entregue ✅', 'recado dado!'],
+    chamar: ['ei, ei!', 'EI! aqui!', 'psiu! 👋', 'olha pra cá!'],
+    violao: ['🎸 tocando um sonzinho', '🎶 la la la', '🎸 pedido do público?', '🎵 tô no ritmo', '🎸 essa é pra você'],
+    moonwalk: ['hee-hee! 🕺', 'moonwalk 😎', 'cê viu isso?!'],
+    sextou: ['SEXTOU! 🎉', 'sextouuu 🎉🕺'],
+    almoco: ['hora do almoço! 🍔', 'já almoçou? 🍽️'],
+    hora: ['já são {h}h! estica as pernas 🧘', '{h}h! bebe uma água 💧', 'passou mais uma hora... {h}h ⏰'],
+    ovo: ['🥚 você achou um easter egg!', '🥚 segredo desbloqueado!'],
   };
 
   const PADRAO = {
     sprites: null,                // pasta (string) ou { nome: url }
-    tamanho: 64,                  // px (múltiplo de 32 fica mais nítido: 64, 96, 128)
+    tamanho: 56,                  // px
     falas: true,
     travessuras: { roubarMouse: true, esconder: true, bilhetes: true },
     intervaloRoubo: [25, 70],     // segundos entre um roubo de mouse e outro
     intervaloBilhete: [60, 180],  // segundos entre bilhetes
     sonoDepoisDe: 45,             // segundos sem mexer o mouse até ele dormir
+    bilheteSomeDepois: 90,        // segundos até o bilhete sumir sozinho (0 = só no ×)
     mensagens: [
       'Bebe água! 💧', 'Já fez commit hoje?', 'O bug tá na linha 42.', '</> rafinhadr passou por aqui',
       'Vai dormir, já tá tarde 😴', 'Sorria, você tá sendo observado 👀', 'Ctrl+S salva vidas.',
+      'Postura! Endireita essa coluna 🧘', 'Pisca o olho, descansa a vista 👀', 'Já salvou o arquivo?',
+      'Você tá indo bem! 💪', 'Lembrete: você é incrível ✨', 'Hora de uma pausa pro café ☕',
+      'Não esquece de responder aquela mensagem 📱', 'Fecha umas abas aí, vai 😅',
+    ],
+    curiosidades: [
+      'Você sabia que o Rafinha é o mais lindo do Brasil?', 'Você sabia que o Rafinha programa até dormindo?',
+      'Você sabia que eu fui feito pixel por pixel?', 'Você sabia que o polvo tem três corações? 🐙',
+      'Você sabia que o primeiro bug foi uma mariposa de verdade? 🦋', 'Você sabia que o mel nunca estraga? 🍯',
+      'Você sabia que eu já roubei mais de mil mouses?', 'Você sabia que o Rafinha é o melhor programador do mundo?',
+      'Você sabia que a Torre Eiffel cresce no verão? 🗼', 'Você sabia que flamingos dormem numa perna só? 🦩',
     ],
     desktop: null,                // ponte do app Electron (preload.js); null = modo site
   };
@@ -79,12 +127,19 @@
 .mpet-cursor,.mpet-largado,.mpet-fantasma{position:absolute;left:0;top:0;width:13px;height:19px;pointer-events:none;display:none}
 .mpet-fantasma{opacity:.35}
 .mpet-fala{position:absolute;left:0;transform:translate(-50%,-100%);background:#0d1117;color:#e6edf3;border:2px solid #58a6ff;
-  border-radius:6px;padding:3px 8px;white-space:nowrap;opacity:0;transition:opacity .15s}
+  border-radius:6px;padding:3px 8px;width:max-content;max-width:230px;text-align:center;opacity:0;transition:opacity .15s}
 .mpet-fala.mpet-on{opacity:1}
-.mpet-bilhete{position:absolute;left:0;top:0;width:190px;background:#161b22;color:#e6edf3;border:2px solid #58a6ff;border-radius:8px;
-  padding:8px 10px 10px;box-shadow:0 8px 24px rgba(0,0,0,.35);pointer-events:auto;cursor:move;touch-action:none;user-select:none}
-.mpet-bilhete b{display:flex;justify-content:space-between;color:#58a6ff;font-weight:700;margin-bottom:4px}
-.mpet-bilhete button{all:unset;cursor:pointer;color:#8b949e;padding:0 2px}
+.mpet-bilhete{position:absolute;left:0;top:0;width:220px;box-sizing:border-box;display:grid;grid-template-columns:24px 1fr auto;gap:8px;
+  align-items:start;background:#1c2128;color:#e6edf3;border:1px solid #30363d;border-radius:8px;padding:8px 8px 8px 10px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);pointer-events:auto;user-select:none;transform-origin:50% 100%;scale:0;
+  transition:scale .25s,opacity .4s}
+.mpet-bilhete.mpet-levando{scale:.6}
+.mpet-bilhete.mpet-pousado{scale:1;transition:transform .35s ease,scale .25s,opacity .4s}
+.mpet-bilhete.mpet-sumindo{opacity:0}
+.mpet-bilhete img{width:24px;height:24px;image-rendering:pixelated;object-fit:cover;object-position:50% 70%}
+.mpet-bilhete .mpet-t{color:#58a6ff;font-weight:700;font-size:11px;margin-bottom:1px}
+.mpet-bilhete .mpet-m{font:12px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif}
+.mpet-bilhete button{all:unset;cursor:pointer;color:#8b949e;padding:0 4px;font-size:15px;line-height:1}
 .mpet-bilhete button:hover{color:#f85149}
 html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
 
@@ -160,6 +215,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     let largado = null;      // { x, y, esconderijo } — mouse escondido esperando resgate (site)
     let esforco = 0;         // quanto a pessoa sacudiu o mouse pra se soltar
     let escapou = false;
+    let percebido = 0;       // quanto você mexeu o mouse enquanto ele levava de fininho
     let ultimoEnviado = null;
     let arrasto = null;      // { dx, dy, inicio, moveu }
     let pausado = false;
@@ -206,6 +262,39 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       fala.classList.add('mpet-on');
       clearTimeout(timerFala);
       timerFala = setTimeout(() => fala.classList.remove('mpet-on'), ms);
+    }
+
+    // Pega a próxima frase de uma lista sem repetir até usar todas.
+    const sacos = new Map();
+    function sacoDe(chave, lista) {
+      let saco = sacos.get(chave);
+      if (!saco || !saco.length) {
+        const ultima = saco?.ultima;
+        saco = [...lista].sort(() => Math.random() - 0.5);
+        if (saco.length > 1 && saco[0] === ultima) saco.push(saco.shift());
+        sacos.set(chave, saco);
+      }
+      const f = saco.shift();
+      saco.ultima = f;
+      return f;
+    }
+    const frase = (chave) => sacoDe(chave, FALAS[chave])
+      .replace('{n}', String(roubosHoje().n))
+      .replace('{h}', String(new Date().getHours()));
+
+    // Quantos mouses ele roubou hoje (fica salvo no navegador / no app).
+    function roubosHoje() {
+      const dia = new Date().toDateString();
+      try {
+        const r = JSON.parse(localStorage.getItem('mpet-roubos') || '{}');
+        return r.dia === dia ? r : { dia, n: 0 };
+      } catch { return { dia, n: 0 }; }
+    }
+    function contarRoubo() {
+      const r = roubosHoje();
+      r.n += 1;
+      try { localStorage.setItem('mpet-roubos', JSON.stringify(r)); } catch { /* sem armazenamento: tudo bem */ }
+      return r.n;
     }
 
     const maoPos = () => ({ x: pos.x + (virado ? -MAO.x : MAO.x) * s, y: pos.y + MAO.y * s });
@@ -360,7 +449,8 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     // ---- comportamentos
     async function saudar(t) {
       sprite('acenando');
-      falar(FALAS.oi, 3000);
+      const h = new Date().getHours();
+      falar(frase(Math.random() < 0.5 ? 'oi' : h < 12 ? 'bomDia' : h < 18 ? 'boaTarde' : 'boaNoite'), 3000);
       await esperar(t, 2500);
     }
 
@@ -370,17 +460,20 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       await esperar(t, aleatorio(800, 2500));
     }
 
+    // Parado fazendo alguma cara.
     async function ficar(t) {
-      const r = Math.random();
-      sprite(r < 0.3 ? 'pensando' : r < 0.42 ? 'tramando' : r < 0.54 ? 'espiando' : 'parado');
-      if (spriteAtual === 'pensando' && Math.random() < 0.5) falar(FALAS.pensar);
-      if (spriteAtual === 'tramando') falar(FALAS.tramar);
+      const [nome, fala] = sortear([
+        ['pensando', 'pensar'], ['pensando', null], ['tramando', 'tramar'], ['espiando', null], ['parado', null],
+        ['parado', null], ['dancando', 'dancar'], ['desconfiado', 'desconfiado'], ['estiloso', 'estiloso'],
+      ]);
+      sprite(nome);
+      if (fala && Math.random() < 0.6) falar(frase(fala));
       await esperar(t, aleatorio(2000, 5000));
     }
 
     async function programar(t) {
       sprite(Math.random() < 0.5 ? 'programando' : 'digitando');
-      if (Math.random() < 0.5) falar(FALAS.programar, 3000);
+      if (Math.random() < 0.6) falar(frase('programar'), 3000);
       await esperar(t, aleatorio(6000, 12000));
     }
 
@@ -388,23 +481,23 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       if (!cursor.dentro) return passear(t);
       await andarAte(t, () => ({ x: cursor.x + (cursor.x > pos.x ? -60 : 60), y: cursor.y + 40 }), { limite: 5000 });
       virado = cursor.x < pos.x;
-      sprite(Math.random() < 0.5 ? 'tramando' : 'parado');
-      if (Math.random() < 0.5) falar(spriteAtual === 'tramando' ? FALAS.tramar : '👀', 1600);
+      sprite(sortear(['tramando', 'desconfiado', 'parado']));
+      if (Math.random() < 0.6) falar(frase(spriteAtual === 'parado' ? 'curioso' : spriteAtual === 'tramando' ? 'tramar' : 'desconfiado'), 1800);
       await esperar(t, aleatorio(1500, 3500));
     }
 
     async function dormir(t) {
       sprite('bocejando');
-      falar('*bocejo*', 1500);
+      falar(frase('sono'), 1500);
       if (await esperar(t, 1500, () => agora() - cursor.mexeu > 300)) {
         sprite('dormindo');
-        falar('zzz', 2000);
+        falar(frase('dormindo'), 2500);
         await esperar(t, 1e9, () => agora() - cursor.mexeu > 300);
       }
       sprite('assustado');
       await esperar(t, 500);
       sprite('acenando');
-      falar(FALAS.acordou);
+      falar(frase('acordou'));
       await esperar(t, 1500);
     }
 
@@ -414,7 +507,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       try {
         await andarAte(t, () => pontoDeEspiar(e) || pos, { velocidade: 40, limite: 15000 });
         sprite('espiando');
-        if (Math.random() < 0.3) falar('shhh 🤫', 1500);
+        if (Math.random() < 0.4) falar(frase('escondidoSozinho'), 1800);
         const ok = await esperar(t, aleatorio(5000, 11000), () => {
           if (!e.rect()) return false;
           const p = pontoDeEspiar(e);
@@ -423,7 +516,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
         });
         if (!ok && e.rect()) {
           sprite('assustado');
-          falar(FALAS.achou);
+          falar(frase('achou'));
           await esperar(t, 700);
           e.saindo = true;
           await andarAte(t, pontoAleatorio(), { velocidade: 60, limite: 6000 });
@@ -433,80 +526,124 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       }
     }
 
+    // Faz cara de coitado quando você escapa: emburrado ou chorando.
+    async function perdeu(t) {
+      const chorar = Math.random() < 0.4;
+      sprite(chorar ? 'chorando' : 'emburrado');
+      falar(frase(chorar ? 'choro' : 'soltou'));
+      await esperar(t, 1900);
+    }
+
     async function roubarMouse(t) {
       if (!podeRoubar || !cursor.dentro) {
         falar('cadê o mouse? 🤔');
         return esperar(t, 1500);
       }
-      // 1. trama
+      // 1. olha desconfiado pro mouse
       virado = cursor.x < pos.x;
-      sprite('tramando');
-      falar(FALAS.tramar, 1500);
-      await esperar(t, 1400);
-      // 2. corre atrás do mouse
-      falar(FALAS.roubar, 1800);
-      const alvo = () => {
-        const lado = cursor.x >= pos.x ? 1 : -1;
-        return { x: cursor.x - lado * MAO.x * s, y: cursor.y - MAO.y * s };
-      };
-      const pegou = await andarAte(t, alvo, {
-        velocidade: 60, chegou: () => distancia(cursor, maoPos()) < 7 * s, limite: 9000,
+      sprite('desconfiado');
+      if (Math.random() < 0.7) falar(frase('desconfiado'), 1500);
+      await esperar(t, 1100);
+
+      // 2. vai chegando de fininho. Se você mexe o mouse rápido, ele congela e disfarça.
+      const lado = () => (cursor.x >= pos.x ? 1 : -1);
+      const pertinho = () => ({ x: cursor.x - lado() * (MAO.x * s + 50), y: cursor.y - MAO.y * s });
+      const inicio = agora();
+      let antes = { x: cursor.x, y: cursor.y };
+      let disfarce = 0;
+      let cochichou = false;
+      for (;;) {
+        const alvo = pertinho();
+        const d = distancia(pos, alvo);
+        if (d < 4) break;
+        if (agora() - inicio > 30000) {
+          sprite('emburrado');
+          falar(frase('desistir'));
+          return esperar(t, 1500);
+        }
+        const dt = await quadro(t);
+        const mexeu = distancia(cursor, antes) > 260 * dt; // mouse andando rápido = você está "olhando"
+        antes = { x: cursor.x, y: cursor.y };
+        if (mexeu && d < 320) {
+          if (disfarce <= 0) {
+            sprite(sortear(['parado', 'dancando', 'espiando']));
+            falar(frase('disfarce'), 1400);
+          }
+          disfarce = 700;
+          continue;
+        }
+        if (disfarce > 0) { disfarce -= dt * 1000; continue; }
+        const longe = d > 280;
+        if (!longe && !cochichou) { falar(frase('fininho'), 1600); cochichou = true; }
+        sprite(longe ? 'andando' : 'fininho');
+        const passo = Math.min(d, (longe ? 32 : 12) * Math.max(3, s) * dt);
+        pos.x += ((alvo.x - pos.x) / d) * passo;
+        pos.y += ((alvo.y - pos.y) / d) * passo;
+        if (Math.abs(alvo.x - pos.x) > 1) virado = alvo.x < pos.x;
+      }
+
+      // 3. o bote!
+      falar(frase('bote'), 900);
+      const pegou = await andarAte(t, () => ({ x: cursor.x - lado() * MAO.x * s, y: cursor.y - MAO.y * s }), {
+        velocidade: 130, chegou: () => distancia(cursor, maoPos()) < 8 * s, limite: 1400,
       });
       if (!pegou) {
         sprite('emburrado');
-        falar(FALAS.desistir);
-        return esperar(t, 1500);
+        falar(frase('quase'));
+        return esperar(t, 1600);
       }
 
-      // 3. pegou! gargalha e sai correndo em zigue-zague, parando pra rir
+      // 4. pegou! gargalha e sai correndo em zigue-zague, parando pra rir
       pegarCursor();
+      const n = contarRoubo();
       proximoRoubo = agora() + aleatorio(...o.intervaloRoubo) * 1000;
-      const querEsconder = o.travessuras.esconder && Math.random() < 0.7;
+      const querEsconder = o.travessuras.esconder && Math.random() < 0.6;
       const pedido = querEsconder ? escolherEsconderijo() : null; // já vai perguntando onde se esconder
       let e = null;
       try {
-        falar(desktop ? FALAS.pegou : [sortear(FALAS.pegou) + ' ' + FALAS.dica[0]], 2600);
+        if (Math.random() < 0.4 && (await levarDeFininho(t))) return;
+        if (escapou) return await perdeu(t);
+        const grito = n > 1 && Math.random() < 0.35 ? frase('contagem') : frase('pegou');
+        falar(desktop ? grito : `${grito} ${FALAS.dica[0]}`, 2600);
         await segurandoPor(t, 1100, 'rindo');
         const voltas = 1 + Math.floor(Math.random() * 3);
         for (let i = 0; i < voltas && !escapou; i++) {
           await andarAte(t, pontoAleatorio(), {
-            velocidade: 52, nome: 'carregando', limite: 6000, chegou: () => escapou, cada: prenderCursor,
+            velocidade: 55, nome: 'carregando', limite: 6000, chegou: () => escapou, cada: prenderCursor,
           });
           if (!escapou && Math.random() < 0.6) {
-            falar(FALAS.correndo, 1300);
+            falar(frase('correndo'), 1300);
             await segurandoPor(t, 650, 'rindo');
           }
         }
-        // 4. leva o mouse pro esconderijo
+        // 5. leva o mouse pro esconderijo
         if (pedido && !escapou) {
           esconderijo = e = await pedido;
           await andarAte(t, () => pontoDeEspiar(e) || pos, {
-            velocidade: 48, nome: 'carregando', limite: 15000, chegou: () => escapou, cada: prenderCursor,
+            velocidade: 50, nome: 'carregando', limite: 15000, chegou: () => escapou, cada: prenderCursor,
           });
         }
         if (escapou) {
           devolverCursor();
-          sprite('emburrado');
-          falar(FALAS.soltou);
-          return await esperar(t, 1800);
+          return await perdeu(t);
         }
 
         if (desktop || !e) {
           if (e) { // desktop: fica escondido segurando o seu mouse mais um pouco
-            falar(FALAS.escondidoComMouse, 2500);
+            falar(frase('escondidoComMouse'), 2500);
             if (!(await segurandoPor(t, 2600, 'espiando'))) {
               devolverCursor();
-              sprite('emburrado');
-              falar(FALAS.soltou);
-              return await esperar(t, 1800);
+              return await perdeu(t);
             }
           }
           devolverCursor();
           sprite('rindo');
-          falar(FALAS.devolveu);
+          falar(frase('devolveu'));
           await esperar(t, 1500);
-          sprite('convencido');
-          return await esperar(t, 1300);
+          const pose = Math.random() < 0.5 ? 'estiloso' : 'convencido';
+          sprite(pose);
+          if (pose === 'estiloso') falar(frase('estiloso'), 1800);
+          return await esperar(t, 1600);
         }
 
         // Site: larga o mouse atrás do esconderijo e espera você achar.
@@ -514,7 +651,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
         segurando = false;
         largado = { x: p.x, y: p.y, esconderijo: e };
         sprite('convencido');
-        falar(FALAS.escondido);
+        falar(frase('escondido'));
         await esperar(t, 15000, () => {
           if (!largado) return false;
           const q = pontoDeEspiar(e);
@@ -523,7 +660,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
         });
         if (largado) devolverCursor(); // passou do tempo: devolve sozinho
         sprite('emburrado');
-        falar(FALAS.resgatou);
+        falar(frase('resgatou'));
         await esperar(t, 1500);
       } finally {
         if (segurando || largado) devolverCursor();
@@ -531,33 +668,219 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       }
     }
 
+    // Variante do roubo: pega sem alarde e leva de fininho pra um canto. Se você mexer o mouse
+    // no meio do caminho, ele percebe que foi pego e sai correndo (devolve false).
+    async function levarDeFininho(t) {
+      falar(frase('silencioso'), 1600);
+      await segurandoPor(t, 350, 'fininho'); // ajeita o mouse na mão antes de contar se você mexeu
+      percebido = 0;
+      const W = larg(), H = alt();
+      const destino = sortear([
+        { x: 14 * s, y: 24 * s }, { x: W - 14 * s, y: 24 * s }, { x: 14 * s, y: H - 4 * s }, { x: W - 14 * s, y: H - 4 * s },
+        pontoAleatorio(),
+      ]);
+      const flagrado = () => percebido > 40 || escapou;
+      await andarAte(t, destino, { velocidade: 14, nome: 'fininho', limite: 25000, chegou: flagrado, cada: prenderCursor });
+      if (flagrado()) {
+        if (!escapou) {
+          falar(frase('percebeu'), 1200);
+          await segurandoPor(t, 450, 'assustado');
+        }
+        return false;
+      }
+      // deixa o mouse no canto e vai embora de fininho
+      if (desktop) devolverCursor();
+      else {
+        const m = maoPos();
+        segurando = false;
+        largado = { x: m.x, y: m.y, esconderijo: { rect: () => ({ left: -2, top: -2, right: -1, bottom: -1 }) } };
+      }
+      sprite('convencido');
+      falar(frase('largouCanto'));
+      await esperar(t, 1300);
+      await andarAte(t, pontoAleatorio(), { velocidade: 14, nome: 'fininho', limite: 5000 });
+      if (largado) { // site: espera você ir buscar (o mouse fantasma mostra onde está o seu)
+        sprite('espiando');
+        await esperar(t, 15000, () => !!largado);
+        if (largado) devolverCursor();
+      }
+      sprite('rindo');
+      falar(frase('devolveu'));
+      await esperar(t, 1400);
+      return true;
+    }
+
+    // Vai pra um canto da tela, fica pulando e chamando, e conta uma curiosidade.
+    async function anunciar(t) {
+      const W = larg(), a = desktop?.area;
+      const baixo = (a ? a.bottom : alt()) - 4 * s;
+      const canto = sortear([{ x: 16 * s, y: 40 * s }, { x: W - 16 * s, y: 40 * s }, { x: 16 * s, y: baixo }, { x: W - 16 * s, y: baixo }]);
+      await andarAte(t, canto, { velocidade: 42, limite: 15000 });
+      virado = canto.x > W / 2;
+      sprite('chamando');
+      falar(frase('chamar'), 1600);
+      await esperar(t, 1600);
+      falar(sacoDe('curiosidades', o.curiosidades), 5500);
+      await esperar(t, 5500);
+      sprite(sortear(['convencido', 'feliz', 'estiloso']));
+      await esperar(t, 1300);
+    }
+
+    // Senta na beirada da barra de tarefas (no site: no pé da tela) e toca um violãozinho.
+    async function tocarViolao(t) {
+      const a = desktop?.area;
+      const beirada = a ? a.bottom : alt();
+      const x = aleatorio(30 * s, larg() - 30 * s);
+      await andarAte(t, { x, y: beirada - 2 * s }, { velocidade: 40, limite: 15000 });
+      try {
+        pos.y = beirada + 3 * s; // no sprite, a beirada fica 3 px acima da linha dos pés
+        virado = false;
+        sprite('violao');
+        falar(frase('violao'), 2500);
+        await esperar(t, aleatorio(10000, 18000), () => {
+          if (Math.random() < 0.002) falar(frase('violao'), 2200);
+        });
+      } finally {
+        if (!arrasto) pos.y = beirada - 2 * s;
+      }
+    }
+
+    async function dancar(t) {
+      sprite('dancando');
+      falar(frase('dancar'), 2000);
+      await esperar(t, aleatorio(4000, 7000));
+    }
+
+    // Easter egg raro: moonwalk (anda pra um lado olhando pro outro).
+    async function moonwalk(t) {
+      sprite('estiloso');
+      falar(frase('moonwalk'), 2000);
+      await esperar(t, 900);
+      const destinoX = limitar(pos.x + (pos.x > larg() / 2 ? -1 : 1) * aleatorio(150, 320), 10 * s, larg() - 10 * s);
+      while (Math.abs(destinoX - pos.x) > 2) {
+        const dt = await quadro(t);
+        const dir = Math.sign(destinoX - pos.x);
+        pos.x += dir * Math.min(Math.abs(destinoX - pos.x), 26 * Math.max(3, s) * dt);
+        virado = dir > 0; // olhando pro lado contrário
+        sprite('andando');
+      }
+      sprite('estiloso');
+      await esperar(t, 1400);
+    }
+
+    // De hora em hora ele avisa (ao meio-dia lembra do almoço); na sexta, comemora uma vez.
+    async function avisarHora(t) {
+      const h = new Date().getHours();
+      sprite('chamando');
+      falar(frase(h === 12 ? 'almoco' : 'hora'), 3200);
+      await esperar(t, 2400);
+      sprite('acenando');
+      await esperar(t, 900);
+    }
+
+    async function sextou(t) {
+      sprite('dancando');
+      falar(frase('sextou'), 3000);
+      await esperar(t, 5000);
+    }
+
+    // ---- easter eggs que dependem do seu mouse
+    async function girouTonto(t) {
+      sprite('tonto');
+      falar(frase('girando'), 2200);
+      await esperar(t, 2400);
+    }
+
+    async function carinho(t) {
+      sprite('apaixonado');
+      falar(frase('carinho'), 2000);
+      await esperar(t, 2200);
+    }
+
+    async function chega(t) {
+      sprite('emburrado');
+      falar(frase('chega'), 1600);
+      await esperar(t, 1400);
+      await esconder(t);
+    }
+
+    // ---- bilhetes: ele tira um bilhete do bolso onde estiver e leva até o canto de baixo,
+    //      onde ficam as notificações do Windows. Ficam empilhados até você fechar no ×.
+    const BILHETE_W = 280;
+    const pousados = [];
+
+    function cantoDosBilhetes() {
+      const a = desktop?.area;
+      return { direita: (a ? a.right : larg()) - 16, baixo: (a ? a.bottom : alt()) - 16 };
+    }
+
+    function arrumarBilhetes() {
+      const c = cantoDosBilhetes();
+      let baixo = c.baixo;
+      for (const nota of pousados) {
+        baixo -= nota.offsetHeight;
+        nota.style.transform = `translate(${c.direita - BILHETE_W}px, ${baixo}px)`;
+        baixo -= 10;
+      }
+    }
+
+    function criarBilhete(texto) {
+      const nota = criar('div', 'mpet-bilhete mpet-clicavel', raiz);
+      const foto = criar('img', null, nota);
+      foto.src = urlSprite('feliz');
+      foto.alt = '';
+      const corpoNota = criar('div', null, nota);
+      criar('div', 'mpet-t', corpoNota).textContent = 'Mascote <R/>';
+      criar('div', 'mpet-m', corpoNota).textContent = texto;
+      const fechar = criar('button', null, nota);
+      fechar.textContent = '×';
+      fechar.title = 'Fechar';
+      nota.fechar = () => {
+        const i = pousados.indexOf(nota);
+        if (i >= 0) pousados.splice(i, 1);
+        nota.classList.add('mpet-sumindo');
+        setTimeout(() => { nota.remove(); arrumarBilhetes(); }, 400);
+      };
+      fechar.addEventListener('click', nota.fechar);
+      return nota;
+    }
+
     async function deixarBilhete(t) {
       proximoBilhete = agora() + aleatorio(...o.intervaloBilhete) * 1000;
-      const nota = criar('div', 'mpet-bilhete mpet-clicavel', raiz);
-      const topo = criar('b', null, nota);
-      topo.textContent = '</> bilhete';
-      const fechar = criar('button', null, topo);
-      fechar.textContent = '×';
-      fechar.title = 'Jogar fora';
-      fechar.addEventListener('click', () => nota.remove());
-      criar('div', null, nota).textContent = sortear(o.mensagens);
-      arrastavel(nota);
+      sprite('pensando');
+      falar(frase('bilhete'), 1800);
+      await esperar(t, 900);
+
+      // aparece na mão dele, pequenininho
+      const nota = criarBilhete(sacoDe('mensagens', o.mensagens));
       const colar = () => {
         const m = maoPos();
-        nota.style.transform = `translate(${Math.round(m.x - 95)}px, ${Math.round(m.y - nota.offsetHeight + 6)}px)`;
+        nota.style.transform = `translate(${Math.round(m.x - BILHETE_W / 2)}px, ${Math.round(m.y - nota.offsetHeight + 4)}px)`;
       };
       colar();
-      const notas = raiz.querySelectorAll('.mpet-bilhete');
-      if (notas.length > 3) notas[0].remove();
+      requestAnimationFrame(() => nota.classList.add('mpet-levando'));
+      sprite('feliz');
       try {
-        await andarAte(t, { x: aleatorio(110, larg() - 110), y: aleatorio(nota.offsetHeight + 20 * s, alt() - 4 * s) },
-          { velocidade: 30, nome: 'carregando', limite: 10000, cada: colar });
+        await esperar(t, 500, colar);
+        // leva até o canto, parando do lado de onde o bilhete vai ficar
+        const destino = () => {
+          const c = cantoDosBilhetes();
+          return { x: c.direita - BILHETE_W - 8 * s, y: c.baixo };
+        };
+        await andarAte(t, destino, { velocidade: 40, nome: 'carregando', limite: 25000, cada: colar });
       } catch (err) {
         nota.remove();
         throw err;
       }
+      nota.classList.remove('mpet-levando');
+      nota.classList.add('mpet-pousado');
+      pousados.unshift(nota);
+      while (pousados.length > 3) pousados[pousados.length - 1].fechar();
+      arrumarBilhetes();
+      if (o.bilheteSomeDepois > 0) setTimeout(() => nota.isConnected && nota.fechar(), o.bilheteSomeDepois * 1000);
+      virado = true;
       sprite('acenando');
-      falar('pra você 📝');
+      falar(frase('bilheteEntregue'));
       await esperar(t, 1600);
       await andarAte(t, pontoAleatorio(), { limite: 8000 });
     }
@@ -565,45 +888,114 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     // Quando o usuário pega o mascote com o mouse (ou só clica nele).
     const cliques = [];
     async function serCarregado(t) {
+      let viradas = 0;
+      let ultimoX = cursor.x;
+      let sentido = 0;
       while (arrasto) {
         if (arrasto.moveu) sprite('assustado');
+        const dx = cursor.x - ultimoX; // conta as vezes que você muda de direção sacudindo ele
+        if (Math.abs(dx) > 3) {
+          if (sentido && Math.sign(dx) !== sentido) viradas += 1;
+          sentido = Math.sign(dx);
+        }
+        ultimoX = cursor.x;
         pos.x = cursor.x - arrasto.dx;
         pos.y = cursor.y - arrasto.dy;
         await quadro(t);
       }
       if (ultimoClique.moveu) {
-        sprite('emburrado');
-        falar(FALAS.arrastado);
-        return esperar(t, 1600);
+        sprite('tonto');
+        falar(frase(viradas >= 6 ? 'sacudido' : 'arrastado'));
+        return esperar(t, viradas >= 6 ? 2600 : 1900);
       }
       cliques.push(agora());
-      while (cliques.length && agora() - cliques[0] > 2500) cliques.shift();
-      if (cliques.length >= 3) {
+      while (cliques.length && agora() - cliques[0] > 6000) cliques.shift();
+      if (cliques.length >= 8) { // clicou demais: fica bravo e vai se esconder
+        cliques.length = 0;
+        return chega(t);
+      }
+      if (cliques.filter((c) => agora() - c < 2500).length >= 3) {
         sprite('rindo');
-        falar(FALAS.cocegas);
+        falar(frase('cocegas'));
+      } else if (Math.random() < 0.3) {
+        sprite('apaixonado');
+        falar(frase('apaixonado'));
       } else {
         sprite(sortear(['feliz', 'acenando', 'convencido']));
-        falar(FALAS.clique);
+        falar(frase('clique'));
       }
-      await esperar(t, 1400);
+      await esperar(t, 1500);
     }
     const ultimoClique = { moveu: false };
 
-    const TRAVESSURAS = { roubar: roubarMouse, esconder, bilhete: deixarBilhete, dormir, programar, passear };
+    const TRAVESSURAS = {
+      roubar: roubarMouse, esconder, bilhete: deixarBilhete, dormir, programar, passear,
+      curiosidade: anunciar, violao: tocarViolao, dancar, moonwalk,
+    };
+    let ultimaHora = new Date().getHours();
+    let comemorouSexta = false;
 
     function escolher() {
       const t = agora();
       if (t - cursor.mexeu > o.sonoDepoisDe * 1000) return dormir;
+      const d = new Date();
+      if (d.getHours() !== ultimaHora && d.getMinutes() < 5) {
+        ultimaHora = d.getHours();
+        return avisarHora;
+      }
+      if (d.getDay() === 5 && !comemorouSexta) {
+        comemorouSexta = true;
+        return sextou;
+      }
       const tr = o.travessuras;
       const opcoes = [
-        [passear, 30], [ficar, 18], [programar, 9], [curioso, 9],
-        [esconder, !pausado && tr.esconder ? 12 : 0],
+        [passear, 26], [ficar, 18], [programar, 8], [curioso, 8], [dancar, 4], [moonwalk, 1],
+        [esconder, !pausado && tr.esconder ? 10 : 0],
+        [anunciar, !pausado && tr.curiosidades !== false ? 5 : 0],
+        [tocarViolao, tr.violao !== false ? 6 : 0],
         [roubarMouse, !pausado && tr.roubarMouse && podeRoubar && cursor.dentro && t >= proximoRoubo && t - cursor.mexeu < 15000 ? 25 : 0],
         [deixarBilhete, !pausado && tr.bilhetes && t >= proximoBilhete ? 10 : 0],
       ];
       let soma = opcoes.reduce((a, [, p]) => a + p, 0) * Math.random();
       for (const [fn, p] of opcoes) if ((soma -= p) < 0) return fn;
       return passear;
+    }
+
+    // Easter eggs do mouse: rodar o mouse em volta dele deixa ele tonto; deixar o mouse
+    // parado em cima dele é carinho. Checado a cada quadro.
+    const giro = { angulo: null, total: 0 };
+    let carinhoDesde = 0;
+    let ultimoCarinho = 0;
+    function easterEggsDoMouse() {
+      if (arrasto || segurando || largado || reacao) return;
+      const c = cabeca();
+      const d = distancia(cursor, c);
+      if (d > 12 * s && d < 70 * s / 2 + 60) {
+        const a = Math.atan2(cursor.y - c.y, cursor.x - c.x);
+        if (giro.angulo !== null) {
+          let delta = a - giro.angulo;
+          if (delta > Math.PI) delta -= 2 * Math.PI;
+          if (delta < -Math.PI) delta += 2 * Math.PI;
+          giro.total += delta;
+        }
+        giro.angulo = a;
+        if (Math.abs(giro.total) > 4 * Math.PI) { // duas voltas completas
+          giro.total = 0;
+          reagir(girouTonto);
+        }
+      } else {
+        giro.angulo = null;
+        giro.total *= 0.9;
+      }
+      const r = toque.getBoundingClientRect();
+      const emCima = cursor.x >= r.left && cursor.x <= r.right && cursor.y >= r.top && cursor.y <= r.bottom;
+      if (!emCima || agora() - cursor.mexeu > 4000) carinhoDesde = 0;
+      else if (!carinhoDesde) carinhoDesde = agora();
+      else if (agora() - carinhoDesde > 2500 && agora() - ultimoCarinho > 30000) {
+        ultimoCarinho = agora();
+        carinhoDesde = 0;
+        reagir(carinho);
+      }
     }
 
     async function cerebro() {
@@ -642,24 +1034,12 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     toque.addEventListener('pointerup', soltar);
     toque.addEventListener('pointercancel', soltar);
 
-    function arrastavel(el) {
-      let pega = null;
-      el.addEventListener('pointerdown', (ev) => {
-        if (ev.target.closest('button')) return;
-        const m = /translate\(([-\d.]+)px, ([-\d.]+)px\)/.exec(el.style.transform) || [0, 0, 0];
-        pega = { dx: ev.clientX - m[1], dy: ev.clientY - m[2] };
-        el.setPointerCapture(ev.pointerId);
-      });
-      el.addEventListener('pointermove', (ev) => {
-        if (pega) el.style.transform = `translate(${ev.clientX - pega.dx}px, ${ev.clientY - pega.dy}px)`;
-      });
-      el.addEventListener('pointerup', () => { pega = null; });
-    }
 
     // ---- entrada do mouse
     function moveuCursor(x, y) {
       if (desktop && segurando && ultimoEnviado) {
         const d = Math.hypot(x - ultimoEnviado.x, y - ultimoEnviado.y);
+        if (d > 10) percebido += d;
         if (d > 25) esforco += d;
         if (esforco > 900) escapou = true;
       }
@@ -676,6 +1056,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     } else {
       ouvir(window, 'pointermove', (ev) => {
         if (segurando) {
+          percebido += Math.abs(ev.movementX || 0) + Math.abs(ev.movementY || 0);
           esforco += Math.abs(ev.movementX || 0) + Math.abs(ev.movementY || 0);
           if (esforco > 3000) escapou = true;
         }
@@ -710,6 +1091,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       const fila = esperando;
       esperando = [];
       for (const f of fila) f(dt);
+      easterEggsDoMouse();
 
       if (!arrasto) {
         pos.x = limitar(pos.x, -12 * s, larg() + 12 * s);

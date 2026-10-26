@@ -18,7 +18,7 @@ let movedor = null;
 let consulta = null;
 let ajustes = {};
 
-const TAMANHOS = [['Pequeno', 64], ['Médio', 96], ['Grande', 128]];
+const TAMANHOS = [['Mini', 48], ['Pequeno', 56], ['Médio', 72], ['Grande', 96]];
 
 // ---------------------------------------------------------------- configuração
 
@@ -287,13 +287,16 @@ function criarBandeja() {
     { label: 'Roubar o mouse agora', click: comando('roubar'), enabled: !!movedor },
     { label: 'Se esconder', click: comando('esconder') },
     { label: 'Deixar um bilhete', click: comando('bilhete') },
+    { label: 'Contar uma curiosidade', click: comando('curiosidade') },
+    { label: 'Tocar violão', click: comando('violao') },
+    { label: 'Dançar', click: comando('dancar') },
     { label: 'Programar', click: comando('programar') },
     { label: 'Dormir', click: comando('dormir') },
     { type: 'separator' },
     {
       label: 'Tamanho',
       submenu: TAMANHOS.map(([nome, px]) => ({
-        label: nome, type: 'radio', checked: (config().tamanho || 64) === px,
+        label: nome, type: 'radio', checked: (config().tamanho || 56) === px,
         click: () => { salvarAjuste('tamanho', px); enviarConfig(); },
       })),
     },

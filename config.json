@@ -1,10 +1,12 @@
 {
-  "tamanho": 64,
+  "tamanho": 56,
   "falas": true,
   "travessuras": {
     "roubarMouse": true,
     "esconder": true,
-    "bilhetes": true
+    "bilhetes": true,
+    "curiosidades": true,
+    "violao": true
   },
   "botoesDeOutrosApps": true,
   "intervaloRoubo": [
@@ -15,6 +17,7 @@
     60,
     180
   ],
+  "bilheteSomeDepois": 90,
   "sonoDepoisDe": 45,
   "mensagens": [
     "Bebe água! 💧",
@@ -23,6 +26,26 @@
     "</> rafinhadr passou por aqui",
     "Vai dormir, já tá tarde 😴",
     "Sorria, você tá sendo observado 👀",
-    "Ctrl+S salva vidas."
+    "Ctrl+S salva vidas.",
+    "Postura! Endireita essa coluna 🧘",
+    "Pisca o olho, descansa a vista 👀",
+    "Já salvou o arquivo?",
+    "Você tá indo bem! 💪",
+    "Lembrete: você é incrível ✨",
+    "Hora de uma pausa pro café ☕",
+    "Não esquece de responder aquela mensagem 📱",
+    "Fecha umas abas aí, vai 😅"
+  ],
+  "curiosidades": [
+    "Você sabia que o Rafinha é o mais lindo do Brasil?",
+    "Você sabia que o Rafinha programa até dormindo?",
+    "Você sabia que eu fui feito pixel por pixel?",
+    "Você sabia que o polvo tem três corações? 🐙",
+    "Você sabia que o primeiro bug foi uma mariposa de verdade? 🦋",
+    "Você sabia que o mel nunca estraga? 🍯",
+    "Você sabia que eu já roubei mais de mil mouses?",
+    "Você sabia que o Rafinha é o melhor programador do mundo?",
+    "Você sabia que a Torre Eiffel cresce no verão? 🗼",
+    "Você sabia que flamingos dormem numa perna só? 🦩"
   ]
 }
