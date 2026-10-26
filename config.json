@@ -10,12 +10,16 @@
   },
   "botoesDeOutrosApps": true,
   "intervaloRoubo": [
-    25,
-    70
+    120,
+    300
   ],
   "intervaloBilhete": [
-    60,
-    180
+    180,
+    420
+  ],
+  "descanso": [
+    45,
+    110
   ],
   "bilheteSomeDepois": 90,
   "sonoDepoisDe": 45,

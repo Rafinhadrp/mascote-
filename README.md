@@ -24,8 +24,8 @@ O `.exe` é gerado sozinho pelo GitHub (aba **Actions**) a cada mudança neste r
 ## O que ele apronta
 
 **Roubando o mouse** (cada vez de um jeito):
-- Fica **desconfiado** olhando pro mouse e vai chegando **de fininho**, na ponta dos pés. Se você mexe o mouse,
-  ele congela e disfarça (*"🎵 fiu fiu..."*). Quando chega pertinho, dá o bote: *"AGORA!"*
+- Fica **desconfiado** olhando pro mouse e vai chegando **de fininho**, na ponta dos pés, sem dar um pio. Se você
+  mexe o mouse, ele congela e disfarça. Quando chega pertinho, dá o bote.
 - **Jeito escandaloso:** gargalha *"HEHEHE roubei seu mouse!"*, foge em zigue-zague arrastando o mouse, se esconde
   com ele atrás de um botão ou janela e devolve rindo, de óculos escuros 😎.
 - **Jeito silencioso:** pega sem alarde e leva o mouse de fininho até um canto da tela. Se você perceber e mexer
@@ -38,7 +38,8 @@ O `.exe` é gerado sozinho pelo GitHub (aba **Actions**) a cada mudança neste r
   Windows**. Ficam empilhados (no máximo 3), somem sozinhos depois de um tempo ou no ×.
 - 📣 Vai pra um canto da tela, **pula e chama**: *"ei, ei! Você sabia que o Rafinha é o mais lindo do Brasil?"*
 - 🎸 **Senta na barra de tarefas** com as perninhas penduradas e **toca violão**: anuncia a música
-  (*"🎸 tocando: Malbec — Henrique & Diego e Dennis DJ"*), cantarola e agradece o público no final.
+  (*"🎸 tocando: Malbec — Henrique & Diego e Dennis DJ"*) e canta com calma: às vezes um trecho, às vezes metade,
+  de vez em quando a música inteira ou um medley de duas. Depois agradece e vai fazer outra coisa.
 - Se esconde atrás de botões e janelas, espiando. Chegou perto? Leva um susto e foge.
 - Dança, programa no notebook, fica pensando, boceja e dorme quando você some.
 - Avisa a hora cheia (*"15h! bebe uma água 💧"*), lembra do almoço ao meio-dia e comemora a **sexta-feira** 🎉.
@@ -93,7 +94,8 @@ O que dá pra mudar pelo menu do ícone fica salvo sozinho. O resto está no **`
 | `tamanho` | tamanho em px (padrão 56; pelo menu: 48, 56, 72 ou 96) |
 | `travessuras` | liga/desliga `roubarMouse`, `esconder`, `bilhetes`, `curiosidades`, `violao` |
 | `botoesDeOutrosApps` | `false` = não procura botões dos outros programas (só janelas e bordas) |
-| `intervaloRoubo` | segundos entre um roubo e outro, ex.: `[25, 70]` |
+| `intervaloRoubo` | segundos entre um roubo e outro, ex.: `[120, 300]` |
+| `descanso` | segundos de sossego depois de cada travessura grande, ex.: `[45, 110]` |
 | `sonoDepoisDe` | segundos sem mexer o mouse até ele dormir |
 | `mensagens` | textos dos bilhetes |
 | `bilheteSomeDepois` | segundos até o bilhete sumir sozinho (`0` = só fecha no ×) |

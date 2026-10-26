@@ -40,14 +40,10 @@
     tramar: ['hehe... 😈', 'que mouse bonito...', '*plano maligno*', 'hmmm 😏', 'tive uma ideia...', 'muahaha', 'ninguém desconfia de nada...'],
     desconfiado: ['hmm... 🤨', 'tô de olho em você', 'que cursor suspeito...', 'esse mouse aí...', 'interessante... 🧐', 'nada não... 👀'],
     curioso: ['👀', 'o que cê tá fazendo?', 'posso ver?', 'hmm, interessante', 'deixa eu ver isso aí'],
-    fininho: ['shhh... 🤫', 'pé ante pé...', 'ninguém tá vendo...', 'devagarinho...', 'modo ninja 🥷', 'nem respira...'],
-    disfarce: ['🎵 fiu fiu...', 'eu? tô só passando', 'nada não 👀', 'que dia lindo, né?', 'só admirando a tela', 'tô parado, ó', 'la la la 🎶'],
-    bote: ['AGORA!', 'É MEU!', 'BOTE!', 'já era!'],
     quase: ['quase! 😤', 'escapou por pouco...', 'da próxima eu pego', 'mouse liso esse!'],
     pegou: ['HEHEHE roubei seu mouse!', 'HAHAHA é meu agora!', 'hihihi peguei!', 'roubadooo 😈', 'perdeu, playboy! 😎',
       'esse mouse agora tem dono!', 'vem pegar se for capaz!', 'achado não é roubado! 🤭', 'obrigado pelo mouse!'],
     contagem: ['já é o {n}º mouse que eu roubo hoje 😎', '{n} a 0 pra mim!', 'roubo número {n}! recorde?', '{n} roubos hoje e contando...'],
-    silencioso: ['*pega devagarinho*', 'shhh... 🤫', 'ele nem viu...', 'só vou pegar emprestado...'],
     percebeu: ['opa! 😳', 'ih, me viu!', 'xiii, flagrado!', 'eita! corre!'],
     largouCanto: ['pronto, tá aqui 🤭', 'deixei ali no cantinho', 'mudei seu mouse de lugar 😇', 'missão cumprida 🥷'],
     correndo: ['hehehe', 'hihihi', 'ninguém me pega!', 'HAHAHA', 'tchau mouse 👋', 'vruuum 💨', 'pega eu!', 'lalala 🎶'],
@@ -95,8 +91,9 @@
     tamanho: 56,                  // px
     falas: true,
     travessuras: { roubarMouse: true, esconder: true, bilhetes: true },
-    intervaloRoubo: [25, 70],     // segundos entre um roubo de mouse e outro
-    intervaloBilhete: [60, 180],  // segundos entre bilhetes
+    intervaloRoubo: [120, 300],   // segundos entre um roubo de mouse e outro
+    intervaloBilhete: [180, 420], // segundos entre bilhetes
+    descanso: [45, 110],          // segundos de sossego depois de qualquer travessura grande
     sonoDepoisDe: 45,             // segundos sem mexer o mouse até ele dormir
     bilheteSomeDepois: 90,        // segundos até o bilhete sumir sozinho (0 = só no ×)
     mensagens: [
@@ -145,7 +142,7 @@
 .mpet-cursor,.mpet-largado,.mpet-fantasma{position:absolute;left:0;top:0;width:13px;height:19px;pointer-events:none;display:none}
 .mpet-fantasma{opacity:.35}
 .mpet-fala{position:absolute;left:0;transform:translate(-50%,-100%);background:#0d1117;color:#e6edf3;border:2px solid #58a6ff;
-  border-radius:6px;padding:3px 8px;width:max-content;max-width:230px;text-align:center;opacity:0;transition:opacity .15s}
+  border-radius:5px;padding:2px 6px;width:max-content;max-width:200px;font-size:11px;text-align:center;opacity:0;transition:opacity .15s}
 .mpet-fala.mpet-on{opacity:1}
 .mpet-bilhete{position:absolute;left:0;top:0;width:220px;box-sizing:border-box;display:grid;grid-template-columns:24px 1fr auto;gap:8px;
   align-items:start;background:#1c2128;color:#e6edf3;border:1px solid #30363d;border-radius:8px;padding:8px 8px 8px 10px;
@@ -239,8 +236,11 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     let pausado = false;
     let clicavel = null;
     let timerFala = 0;
-    let proximoRoubo = agora() + aleatorio(15, 30) * 1000;
-    let proximoBilhete = agora() + aleatorio(20, 60) * 1000;
+    let proximoRoubo = agora() + aleatorio(40, 90) * 1000;
+    let proximoBilhete = agora() + aleatorio(60, 150) * 1000;
+    // depois de cada travessura grande ele sossega um tempo, e cada uma tem seu próprio intervalo
+    let sossegoAte = agora() + 25000;
+    const proxima = { violao: agora() + 60000, anunciar: agora() + 90000, esconder: agora() + 40000 };
     const cursor = { x: -1e4, y: -1e4, dentro: !!desktop, mexeu: agora() };
     const podeRoubar = desktop ? !!desktop.podeMoverCursor : matchMedia('(pointer: fine)').matches;
 
@@ -475,7 +475,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     async function passear(t) {
       await andarAte(t, pontoAleatorio(), { limite: 12000 });
       sprite('parado');
-      await esperar(t, aleatorio(800, 2500));
+      await esperar(t, aleatorio(1500, 4000));
     }
 
     // Parado fazendo alguma cara.
@@ -485,8 +485,8 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
         ['parado', null], ['dancando', 'dancar'], ['desconfiado', 'desconfiado'], ['estiloso', 'estiloso'],
       ]);
       sprite(nome);
-      if (fala && Math.random() < 0.6) falar(frase(fala));
-      await esperar(t, aleatorio(2000, 5000));
+      if (fala && Math.random() < 0.5) falar(frase(fala));
+      await esperar(t, aleatorio(3000, 8000));
     }
 
     async function programar(t) {
@@ -560,7 +560,6 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       // 1. olha desconfiado pro mouse
       virado = cursor.x < pos.x;
       sprite('desconfiado');
-      if (Math.random() < 0.7) falar(frase('desconfiado'), 1500);
       await esperar(t, 1100);
 
       // 2. vai chegando de fininho. Se você mexe o mouse rápido, ele congela e disfarça.
@@ -569,7 +568,6 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       const inicio = agora();
       let antes = { x: cursor.x, y: cursor.y };
       let disfarce = 0;
-      let cochichou = false;
       for (;;) {
         const alvo = pertinho();
         const d = distancia(pos, alvo);
@@ -583,16 +581,12 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
         const mexeu = distancia(cursor, antes) > 260 * dt; // mouse andando rápido = você está "olhando"
         antes = { x: cursor.x, y: cursor.y };
         if (mexeu && d < 320) {
-          if (disfarce <= 0) {
-            sprite(sortear(['parado', 'dancando', 'espiando']));
-            falar(frase('disfarce'), 1400);
-          }
+          if (disfarce <= 0) sprite(sortear(['parado', 'espiando'])); // congela e finge que não é nada
           disfarce = 700;
           continue;
         }
         if (disfarce > 0) { disfarce -= dt * 1000; continue; }
         const longe = d > 280;
-        if (!longe && !cochichou) { falar(frase('fininho'), 1600); cochichou = true; }
         sprite(longe ? 'andando' : 'fininho');
         const passo = Math.min(d, (longe ? 32 : 12) * Math.max(3, s) * dt);
         pos.x += ((alvo.x - pos.x) / d) * passo;
@@ -601,7 +595,6 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       }
 
       // 3. o bote!
-      falar(frase('bote'), 900);
       const pegou = await andarAte(t, () => ({ x: cursor.x - lado() * MAO.x * s, y: cursor.y - MAO.y * s }), {
         velocidade: 130, chegou: () => distancia(cursor, maoPos()) < 8 * s, limite: 1400,
       });
@@ -689,7 +682,6 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     // Variante do roubo: pega sem alarde e leva de fininho pra um canto. Se você mexer o mouse
     // no meio do caminho, ele percebe que foi pego e sai correndo (devolve false).
     async function levarDeFininho(t) {
-      falar(frase('silencioso'), 1600);
       await segurandoPor(t, 350, 'fininho'); // ajeita o mouse na mão antes de contar se você mexeu
       percebido = 0;
       const W = larg(), H = alt();
@@ -749,54 +741,108 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       const a = desktop?.area;
       const beirada = a ? a.bottom : alt();
       const x = aleatorio(30 * s, larg() - 30 * s);
+      esconderijo = null; // sentado na barra ele fica na frente, nada de recorte de esconderijo
       await andarAte(t, { x, y: beirada - 2 * s }, { velocidade: 40, limite: 15000 });
       try {
         pos.y = beirada + 3 * s; // no sprite, a beirada fica 3 px acima da linha dos pés
         virado = false;
+        esconderijo = null;
         sprite('violao');
-        const { musica, letra } = await escolherMusica();
-        const nome = musica.artista ? `${musica.musica} — ${musica.artista}` : musica.musica;
-        falar(`🎸 tocando: ${nome}`, 3800);
-        await esperar(t, 3800);
-        if (letra) {
-          // canta em legenda, uma linha por vez; linha em branco vira pausa instrumental
-          for (const linha of letra) {
-            const ms = linha ? limitar(1600 + linha.length * 75, 2200, 5500) : 1800;
-            falar(linha ? `♪ ${linha} ♪` : '🎶', ms);
-            await esperar(t, ms + 150);
-          }
-        } else {
-          const fim = agora() + aleatorio(12000, 20000);
-          while (agora() < fim) {
-            falar(frase('cantarolar'), 2300);
-            await esperar(t, aleatorio(2700, 4200));
+        const show = await montarShow();
+        for (let i = 0; i < show.length; i++) {
+          const { musica, trecho } = show[i];
+          const nome = musica.artista ? `${musica.musica} — ${musica.artista}` : musica.musica;
+          falar(i === 0 ? `🎸 tocando: ${nome}` : `🎶 emendando com ${nome}...`, 4000);
+          await esperar(t, 4500); // introdução no violão antes de começar a cantar
+          if (trecho) await cantar(t, trecho);
+          else await cantarolar(t, aleatorio(14000, 22000));
+          if (i < show.length - 1) {
+            falar('🎶', 3000);
+            await esperar(t, 3000);
           }
         }
-        falar(frase('aplausos'), 2400);
-        await esperar(t, 2400);
+        falar(frase('aplausos'), 2800);
+        await esperar(t, 2800);
       } finally {
         if (!arrasto) pos.y = beirada - 2 * s;
       }
     }
 
-    // Escolhe a próxima música do repertório (config + letras que você colocou na pasta)
-    // e acha a letra dela, se tiver.
-    const normalizar = (txt) => String(txt).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-    async function escolherMusica() {
+    // Canta em legenda, uma linha por vez, no ritmo de sertanejo (sem pressa);
+    // linha em branco vira um pedaço só no violão.
+    async function cantar(t, linhas) {
+      for (const linha of linhas) {
+        const ms = linha ? limitar(2800 + linha.length * 110, 3600, 8000) : 3200;
+        falar(linha ? `♪ ${linha} ♪` : '🎶', ms);
+        await esperar(t, ms + (linha ? 500 : 0));
+      }
+    }
+
+    async function cantarolar(t, ms) {
+      const fim = agora() + ms;
+      while (agora() < fim) {
+        falar(frase('cantarolar'), 3000);
+        await esperar(t, aleatorio(3500, 5000));
+      }
+    }
+
+    // Monta o show: às vezes a música inteira, às vezes só um trecho, às vezes um medley
+    // emendando pedaços de 2 ou 3 músicas.
+    async function montarShow() {
+      const sorteio = Math.random();
+      const rep = await repertorio();
+      if (!rep.length) return [{ musica: { musica: 'um sonzinho' }, trecho: null }];
+      const proxima = () => {
+        const titulo = sacoDe('musicas', rep.map((m) => m.musica.musica));
+        return rep.find((m) => m.musica.musica === titulo);
+      };
+      const estrofes = (letra) => { // separa a letra nos blocos entre linhas em branco
+        const blocos = [[]];
+        for (const l of letra) {
+          if (l) blocos[blocos.length - 1].push(l);
+          else if (blocos[blocos.length - 1].length) blocos.push([]);
+        }
+        return blocos.filter((b) => b.length);
+      };
+      const pedaco = (letra, quantas) => { // algumas estrofes seguidas, a partir de uma qualquer
+        const b = estrofes(letra);
+        const ini = Math.floor(Math.random() * Math.max(1, b.length - quantas + 1));
+        return b.slice(ini, ini + quantas).flatMap((e, i) => (i ? ['', ...e] : e));
+      };
+      const metade = (letra) => { // a primeira ou a segunda metade das estrofes
+        const b = estrofes(letra);
+        const meio = Math.ceil(b.length / 2);
+        const parte = b.length > 1 && Math.random() < 0.5 ? b.slice(meio) : b.slice(0, meio);
+        return parte.flatMap((e, i) => (i ? ['', ...e] : e));
+      };
+      if (sorteio < 0.08 && rep.length > 1) { // raro: medley de 2 músicas, uma estrofe de cada
+        const a = proxima();
+        const b = proxima();
+        return [a, b].map((m) => ({ musica: m.musica, trecho: m.letra ? pedaco(m.letra, 1) : null }));
+      }
+      const m = proxima();
+      if (!m.letra) return [{ musica: m.musica, trecho: null }];
+      if (sorteio < 0.2) return [{ musica: m.musica, trecho: m.letra.slice(0, 60) }]; // de vez em quando, inteira
+      if (sorteio < 0.65) return [{ musica: m.musica, trecho: metade(m.letra) }];      // metade
+      return [{ musica: m.musica, trecho: pedaco(m.letra, 1) }];                     // só um trecho
+    }
+
+    // Repertório: músicas do config + letras que você colocou na pasta.
+    const normalizar = (txt) => String(txt).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    async function repertorio() {
       let letras = {};
       try { letras = (desktop?.letras && (await desktop.letras())) || {}; } catch { /* sem letras */ }
       const lista = (o.musicas || []).map((m) => (typeof m === 'string' ? { musica: m } : m));
-      const achar = (m) => Object.keys(letras).find((arq) => normalizar(arq).startsWith(normalizar(m.musica)));
+      const casa = (arq, m) => normalizar(arq).startsWith(normalizar(m.musica));
       for (const arq of Object.keys(letras)) { // músicas que só existem na pasta de letras
-        if (!lista.some((m) => normalizar(arq).startsWith(normalizar(m.musica)))) lista.push({ musica: arq });
+        if (!lista.some((m) => casa(arq, m))) lista.push({ musica: arq });
       }
-      if (!lista.length) return { musica: { musica: 'um sonzinho' }, letra: null };
-      const titulo = sacoDe('musicas', lista.map((m) => m.musica));
-      const musica = lista.find((m) => m.musica === titulo) || { musica: titulo };
-      const letra = Array.isArray(musica.letra) ? musica.letra : letras[achar(musica)] || null;
-      // tira as linhas em branco repetidas e limita o tamanho pra ele não ficar uma eternidade
-      const limpa = letra && letra.filter((l, i, a) => l || (i > 0 && a[i - 1])).slice(0, 60);
-      return { musica, letra: limpa && limpa.some(Boolean) ? limpa : null };
+      return lista.map((musica) => {
+        const bruta = Array.isArray(musica.letra) ? musica.letra : letras[Object.keys(letras).find((arq) => casa(arq, musica))];
+        // tira linhas em branco repetidas
+        const letra = bruta && bruta.filter((l, i, a) => l || (i > 0 && a[i - 1]));
+        return { musica, letra: letra && letra.some(Boolean) ? letra : null };
+      });
     }
 
     async function dancar(t) {
@@ -1002,13 +1048,14 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
         return sextou;
       }
       const tr = o.travessuras;
+      const livre = !pausado && t >= sossegoAte; // travessura grande só depois do sossego
       const opcoes = [
-        [passear, 26], [ficar, 18], [programar, 8], [curioso, 8], [dancar, 4], [moonwalk, 1],
-        [esconder, !pausado && tr.esconder ? 10 : 0],
-        [anunciar, !pausado && tr.curiosidades !== false ? 5 : 0],
-        [tocarViolao, tr.violao !== false ? 6 : 0],
-        [roubarMouse, !pausado && tr.roubarMouse && podeRoubar && cursor.dentro && t >= proximoRoubo && t - cursor.mexeu < 15000 ? 25 : 0],
-        [deixarBilhete, !pausado && tr.bilhetes && t >= proximoBilhete ? 10 : 0],
+        [passear, 30], [ficar, 22], [programar, 10], [curioso, 6], [dancar, 2], [moonwalk, 0.5],
+        [esconder, livre && tr.esconder && t >= proxima.esconder ? 8 : 0],
+        [anunciar, livre && tr.curiosidades !== false && t >= proxima.anunciar ? 6 : 0],
+        [tocarViolao, livre && tr.violao !== false && t >= proxima.violao ? 7 : 0],
+        [roubarMouse, livre && tr.roubarMouse && podeRoubar && cursor.dentro && t >= proximoRoubo && t - cursor.mexeu < 15000 ? 12 : 0],
+        [deixarBilhete, livre && tr.bilhetes && t >= proximoBilhete ? 6 : 0],
       ];
       let soma = opcoes.reduce((a, [, p]) => a + p, 0) * Math.random();
       for (const [fn, p] of opcoes) if ((soma -= p) < 0) return fn;
@@ -1052,6 +1099,19 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       }
     }
 
+    // Depois de uma travessura grande: sossego geral e um intervalo maior até repetir a mesma.
+    function descansarDepois(acao) {
+      const grandes = new Map([
+        [roubarMouse, null], [deixarBilhete, null], [tocarViolao, 'violao'], [anunciar, 'anunciar'], [esconder, 'esconder'], [chega, 'esconder'],
+      ]);
+      if (!grandes.has(acao)) return;
+      sossegoAte = agora() + aleatorio(...o.descanso) * 1000;
+      const intervalos = { violao: [240, 480], anunciar: [180, 360], esconder: [90, 200] };
+      const chave = grandes.get(acao);
+      if (chave) proxima[chave] = agora() + aleatorio(...intervalos[chave]) * 1000;
+      if (acao === roubarMouse) proximoRoubo = Math.max(proximoRoubo, agora() + aleatorio(...o.intervaloRoubo) * 1000);
+    }
+
     async function cerebro() {
       for (;;) {
         const t = (tarefa = { viva: true });
@@ -1061,6 +1121,8 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
           await acao(t);
         } catch (err) {
           if (!(err instanceof Cancelado)) console.error('[mascote]', err);
+        } finally {
+          descansarDepois(acao);
         }
         try { await quadro({ viva: true }); } catch { /* nunca */ }
       }

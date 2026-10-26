@@ -82,6 +82,18 @@ function prepararPastaLetras() {
   }
 }
 
+// O Bloco de Notas às vezes salva em ANSI (Windows-1252) em vez de UTF-8: aí o "você" virava "voc�".
+function lerTexto(arquivo) {
+  const bytes = fs.readFileSync(arquivo);
+  let texto;
+  try {
+    texto = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    texto = new TextDecoder('windows-1252').decode(bytes);
+  }
+  return texto.replace(/^\uFEFF/, '');
+}
+
 // Lê as letras da pasta letras/ que vai junto no app e da pasta do seu computador
 // (a do computador ganha se as duas tiverem a mesma música).
 function lerLetras() {
@@ -90,7 +102,7 @@ function lerLetras() {
     try {
       for (const arquivo of fs.readdirSync(pasta)) {
         if (!arquivo.toLowerCase().endsWith('.txt') || arquivo === 'LEIA-ME.txt') continue;
-        const texto = fs.readFileSync(path.join(pasta, arquivo), 'utf8').replace(/^\uFEFF/, '');
+        const texto = lerTexto(path.join(pasta, arquivo));
         // linhas começando com # são comentários (instruções), não fazem parte da letra
         letras[arquivo.slice(0, -4)] = texto.split(/\r?\n/).map((l) => l.trim()).filter((l) => !l.startsWith('#'));
       }
@@ -308,6 +320,17 @@ function criarJanela() {
   janela.loadFile('desktop.html');
 
   screen.on('display-metrics-changed', () => janela?.setBounds(screen.getPrimaryDisplay().bounds));
+
+  // Quando você clica na barra de tarefas, o Windows coloca ela por cima de tudo e o mascote
+  // (sentado tocando violão, por exemplo) ficava escondido atrás. Puxa a janela pra frente de novo.
+  if (process.platform === 'win32') {
+    setInterval(() => {
+      if (janela && !janela.isDestroyed()) {
+        janela.setAlwaysOnTop(true, 'screen-saver');
+        janela.moveTop();
+      }
+    }, 1500);
+  }
 
   // Manda a posição do mouse (relativa à janela) ~60x por segundo.
   let ultimo = '';
