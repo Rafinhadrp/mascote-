@@ -768,13 +768,42 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       }
     }
 
-    // Canta em legenda, uma linha por vez, no ritmo de sertanejo (sem pressa);
-    // linha em branco vira um pedaço só no violão.
+    // Canta tipo karaokê: as palavras vão aparecendo uma a uma, no ritmo de sertanejo.
+    // Frase comprida é quebrada em pedaços curtos; linha em branco vira um pedaço só no violão.
+    function pedacosDaFrase(linha, max = 26) {
+      const palavras = linha.split(/\s+/).filter(Boolean);
+      const partes = Math.max(1, Math.ceil(linha.length / max));
+      const alvo = linha.length / partes; // pedaços de tamanho parecido, sem palavra sobrando sozinha
+      const pedacos = [];
+      let atual = '';
+      for (const palavra of palavras) {
+        if (atual && pedacos.length < partes - 1 && (atual + ' ' + palavra).length > alvo + 4) {
+          pedacos.push(atual);
+          atual = palavra;
+        } else atual = atual ? `${atual} ${palavra}` : palavra;
+      }
+      if (atual) pedacos.push(atual);
+      return pedacos;
+    }
+
     async function cantar(t, linhas) {
       for (const linha of linhas) {
-        const ms = linha ? limitar(2800 + linha.length * 110, 3600, 8000) : 3200;
-        falar(linha ? `♪ ${linha} ♪` : '🎶', ms);
-        await esperar(t, ms + (linha ? 500 : 0));
+        if (!linha) {
+          falar('🎶', 3200);
+          await esperar(t, 3200);
+          continue;
+        }
+        for (const pedaco of pedacosDaFrase(linha)) {
+          const palavras = pedaco.split(' ');
+          for (let i = 1; i <= palavras.length; i++) {
+            falar(`♪ ${palavras.slice(0, i).join(' ')}`, 5000);
+            // palavra comprida demora mais; a última da frase é "esticada"
+            const ultima = i === palavras.length;
+            await esperar(t, limitar(280 + palavras[i - 1].length * 75, 380, 950) + (ultima ? 500 : 0));
+          }
+          falar(`♪ ${pedaco} ♪`, 1500);
+          await esperar(t, 900);
+        }
       }
     }
 
