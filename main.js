@@ -82,15 +82,19 @@ function prepararPastaLetras() {
   }
 }
 
+// Lê as letras da pasta letras/ que vai junto no app e da pasta do seu computador
+// (a do computador ganha se as duas tiverem a mesma música).
 function lerLetras() {
   const letras = {};
-  try {
-    for (const arquivo of fs.readdirSync(pastaLetras())) {
-      if (!arquivo.toLowerCase().endsWith('.txt') || arquivo === 'LEIA-ME.txt') continue;
-      const texto = fs.readFileSync(path.join(pastaLetras(), arquivo), 'utf8').replace(/^\uFEFF/, '');
-      letras[arquivo.slice(0, -4)] = texto.split(/\r?\n/).map((l) => l.trim());
-    }
-  } catch { /* pasta vazia ou sem acesso */ }
+  for (const pasta of [path.join(__dirname, 'letras'), pastaLetras()]) {
+    try {
+      for (const arquivo of fs.readdirSync(pasta)) {
+        if (!arquivo.toLowerCase().endsWith('.txt') || arquivo === 'LEIA-ME.txt') continue;
+        const texto = fs.readFileSync(path.join(pasta, arquivo), 'utf8').replace(/^\uFEFF/, '');
+        letras[arquivo.slice(0, -4)] = texto.split(/\r?\n/).map((l) => l.trim());
+      }
+    } catch { /* pasta vazia ou sem acesso */ }
+  }
   return letras;
 }
 

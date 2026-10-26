@@ -77,7 +77,11 @@ linha por vez, em cima dele:
    linha em branco vira uma pausa com 🎶.
 3. Pronto. Não precisa reiniciar. Música que só existe na pasta também entra no repertório.
 
-As letras ficam só no seu computador; não vão pro GitHub.
+As letras dessa pasta ficam só no seu computador.
+
+**Quer que vá junto no `.exe`?** Coloque os `.txt` na pasta **`letras/`** deste repositório (no GitHub: entre na
+pasta → **Add file → Create new file**, nome `Malbec.txt`, cole a letra e salve). O `.exe` novo sai sozinho em
+Releases. Lembre que este repositório é público: o que estiver em `letras/` fica visível pra todo mundo.
 
 ## ⚙️ Configurando
 
