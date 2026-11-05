@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel do Mascote R</title>
+  <link rel="icon" href="sprites/icone.png">
+  <style>
+    /* Painel de controle remoto: lista de amigos online à esquerda, comandos do escolhido à direita */
+    :root {
+      --fundo: #0d1117; --cartao: #161b22; --cartao2: #1c2128; --borda: #30363d; --texto: #e6edf3; --fraco: #8b949e;
+      --azul: #58a6ff; --azul-forte: #1f6feb; --verde: #3fb950; --vermelho: #f85149;
+      --mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+      --fonte: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--fundo); color: var(--texto); font: 15px/1.5 var(--fonte); }
+    .faixa { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+    header { border-bottom: 1px solid var(--borda); }
+    header .dentro { max-width: 1040px; margin: 0 auto; padding-block: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    header img { width: 40px; height: 40px; image-rendering: pixelated; }
+    header h1 { font: 700 18px var(--mono); margin: 0; flex: 1; }
+    header h1 span { color: var(--azul); }
+    .pilula { font: 600 12px var(--mono); padding: 4px 10px; border-radius: 99px; border: 1px solid var(--borda); color: var(--fraco); }
+    .pilula.on { color: var(--verde); border-color: color-mix(in srgb, var(--verde) 50%, transparent); }
+    .pilula.erro { color: var(--vermelho); border-color: color-mix(in srgb, var(--vermelho) 50%, transparent); }
+    main { max-width: 1040px; margin: 0 auto; padding-block: 24px 48px; display: grid; gap: 20px; }
+    .cartao { background: var(--cartao); border: 1px solid var(--borda); border-radius: 12px; padding: 16px; min-width: 0; }
+    h2 { font: 700 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fraco); margin: 0 0 12px; }
+    details summary { cursor: pointer; font: 700 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fraco); }
+    details[open] summary { margin-bottom: 12px; }
+    .campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    label { display: grid; gap: 4px; font-size: 13px; color: var(--fraco); }
+    input { width: 100%; background: var(--fundo); color: var(--texto); border: 1px solid var(--borda); border-radius: 8px; padding: 9px 10px; font: inherit; }
+    input:focus-visible, button:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+    button { font: inherit; color: var(--texto); background: var(--cartao2); border: 1px solid var(--borda); border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+    button:hover:not(:disabled) { border-color: var(--azul); }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    button.primario { background: var(--azul-forte); border-color: var(--azul-forte); font-weight: 600; }
+    .linha { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+    .nota { font-size: 13px; color: var(--fraco); margin: 8px 0 0; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+    @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+    .amigos { display: grid; gap: 6px; }
+    .amigo { display: grid; grid-template-columns: 10px 1fr auto; gap: 10px; align-items: center; text-align: left; padding: 10px 12px; }
+    .amigo.sel { border-color: var(--azul); background: color-mix(in srgb, var(--azul) 10%, var(--cartao2)); }
+    .amigo .ponto { width: 10px; height: 10px; border-radius: 50%; background: var(--fraco); }
+    .amigo.online .ponto { background: var(--verde); box-shadow: 0 0 0 3px color-mix(in srgb, var(--verde) 25%, transparent); }
+    .amigo b { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .amigo small { color: var(--fraco); font-size: 12px; }
+    .vazio { color: var(--fraco); font-size: 14px; margin: 4px 0; }
+    .alvo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .alvo h3 { margin: 0; font-size: 20px; }
+    .alvo button { padding: 4px 10px; font-size: 13px; }
+    .acoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+    .acoes button { display: flex; align-items: center; gap: 8px; text-align: left; }
+    .acoes button img { width: 28px; height: 28px; image-rendering: pixelated; flex: none; }
+    .acoes button.forte { border-color: color-mix(in srgb, var(--azul) 55%, var(--borda)); }
+    .mensagem { margin-top: 16px; display: grid; gap: 8px; }
+    .mensagem .linha { margin-top: 0; }
+    .historico { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font: 13px/1.4 var(--mono); color: var(--fraco); max-height: 220px; overflow-y: auto; }
+    .historico b { color: var(--texto); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header class="faixa"><div class="dentro">
+    <img src="sprites/acenando-128.gif" alt="">
+    <h1>&lt;R<span>/</span>&gt; painel do mascote</h1>
+    <span class="pilula" id="estado">desconectado</span>
+  </div></header>
+
+  <main class="faixa">
+    <details class="cartao" id="config">
+      <summary>Conexão</summary>
+      <div class="campos">
+        <label>Sala (a senha que está nos segredos do GitHub)
+          <input id="sala" type="password" autocomplete="off" placeholder="ex.: mascote-a8f3k2…">
+        </label>
+        <label>Servidor
+          <input id="servidor" type="url" placeholder="wss://broker.hivemq.com:8884/mqtt">
+        </label>
+        <label>Usuário do servidor (opcional)
+          <input id="usuario" autocomplete="off">
+        </label>
+        <label>Senha do servidor (opcional)
+          <input id="senha" type="password" autocomplete="off">
+        </label>
+      </div>
+      <div class="linha">
+        <button class="primario" id="conectar">Conectar</button>
+        <button id="desconectar" disabled>Desconectar</button>
+      </div>
+      <p class="nota">Fica salvo só neste navegador. Use a mesma sala e o mesmo servidor que estão no .exe dos seus amigos.</p>
+    </details>
+
+    <div class="layout">
+      <section class="cartao">
+        <h2>Mascotes</h2>
+        <div class="amigos" id="amigos">
+          <p class="vazio">Conecte pra ver quem está com o mascote aberto.</p>
+        </div>
+      </section>
+
+      <section class="cartao">
+        <div class="alvo">
+          <h3 id="alvoNome">Ninguém escolhido</h3>
+          <button id="renomear" hidden>Mudar apelido</button>
+          <button id="esquecer" hidden>Tirar da lista</button>
+        </div>
+        <div class="acoes" id="acoes"></div>
+        <div class="mensagem">
+          <label>Escrever algo pra ele
+            <input id="texto" maxlength="160" placeholder="ex.: Ei, você sabia que o Rafinha é o mais lindo do Brasil?">
+          </label>
+          <div class="linha">
+            <button data-acao="falar" data-texto>💬 Falar</button>
+            <button data-acao="bilhete" data-texto>📬 Mandar bilhete</button>
+            <button data-acao="curiosidade" data-texto>📣 Gritar no canto da tela</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="cartao">
+      <h2>O que você mandou</h2>
+      <ul class="historico" id="historico"><li>Nada ainda.</li></ul>
+    </section>
+  </main>
+
+  <script src="vendor/mqtt.min.js"></script>
+  <script>
+    const SERVIDOR_PADRAO = 'wss://broker.hivemq.com:8884/mqtt';
+    const ACOES = [
+      ['roubar', 'Roubar o mouse', 'carregando', true], ['esconder', 'Se esconder', 'espiando', true],
+      ['violao', 'Tocar violão', 'violao', true], ['dancar', 'Dançar', 'dancando'],
+      ['curiosidade', 'Curiosidade', 'chamando'], ['bilhete', 'Bilhete aleatório', 'feliz'],
+      ['programar', 'Programar', 'digitando'], ['dormir', 'Dormir', 'dormindo'],
+      ['moonwalk', 'Moonwalk', 'estiloso'], ['passear', 'Passear', 'andando'],
+    ];
+    const $ = (id) => document.getElementById(id);
+    const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sem armazenamento */ } };
+    const ler = (k, padrao) => { try { return JSON.parse(localStorage.getItem(k)) ?? padrao; } catch { return padrao; } };
+
+    let cliente = null;
+    let base = '';
+    let alvo = 'todos';
+    const amigos = new Map(); // id → { id, nome, computador, online, quando }
+    const apelidos = ler('mpet-apelidos', {});
+    const historico = [];
+
+    // ---- botões de ação
+    for (const [acao, rotulo, sprite, forte] of ACOES) {
+      const b = document.createElement('button');
+      b.dataset.acao = acao;
+      if (forte) b.className = 'forte';
+      const img = document.createElement('img');
+      img.src = `sprites/${sprite}-128.gif`;
+      img.alt = '';
+      b.append(img, rotulo);
+      $('acoes').append(b);
+    }
+    document.addEventListener('click', (ev) => {
+      const b = ev.target.closest('button[data-acao]');
+      if (!b) return;
+      const texto = b.hasAttribute('data-texto') ? $('texto').value.trim() : '';
+      if (b.hasAttribute('data-texto') && !texto) { $('texto').focus(); return; }
+      enviar(b.dataset.acao, texto, b.textContent.trim());
+    });
+
+    // ---- conexão
+    const cfg = ler('mpet-conexao', {});
+    $('sala').value = cfg.sala || '';
+    $('servidor').value = cfg.servidor || SERVIDOR_PADRAO;
+    $('usuario').value = cfg.usuario || '';
+    $('senha').value = cfg.senha || '';
+    $('config').open = !cfg.sala;
+
+    function estado(texto, tipo) {
+      $('estado').textContent = texto;
+      $('estado').className = 'pilula' + (tipo ? ' ' + tipo : '');
+    }
+
+    function conectar() {
+      const c = { sala: $('sala').value.trim(), servidor: $('servidor').value.trim() || SERVIDOR_PADRAO,
+        usuario: $('usuario').value.trim(), senha: $('senha').value };
+      if (!c.sala) { $('sala').focus(); return; }
+      guardar('mpet-conexao', c);
+      desconectar();
+      base = `mascote-r/${c.sala}`;
+      estado('conectando…');
+      cliente = mqtt.connect(c.servidor, {
+        clientId: 'painel-' + Math.random().toString(16).slice(2, 10),
+        username: c.usuario || undefined, password: c.senha || undefined, reconnectPeriod: 5000, connectTimeout: 15000,
+      });
+      cliente.on('connect', () => {
+        estado('conectado', 'on');
+        cliente.subscribe(`${base}/status/+`, { qos: 1 });
+        $('config').open = false;
+      });
+      cliente.on('reconnect', () => estado('reconectando…'));
+      cliente.on('error', (err) => estado('erro: ' + err.message, 'erro'));
+      cliente.on('close', () => { if (cliente) estado('sem conexão', 'erro'); });
+      cliente.on('message', (topico, dados) => {
+        const id = topico.split('/').pop();
+        if (!dados.length) amigos.delete(id);
+        else {
+          try { amigos.set(id, { ...JSON.parse(String(dados)), id }); } catch { return; }
+        }
+        desenharAmigos();
+      });
+      $('conectar').disabled = true;
+      $('desconectar').disabled = false;
+    }
+
+    function desconectar() {
+      if (cliente) { const c = cliente; cliente = null; c.end(true); }
+      amigos.clear();
+      estado('desconectado');
+      $('conectar').disabled = false;
+      $('desconectar').disabled = true;
+      desenharAmigos();
+    }
+
+    $('conectar').addEventListener('click', conectar);
+    $('desconectar').addEventListener('click', desconectar);
+
+    // ---- lista de amigos
+    const nomeDe = (a) => apelidos[a.id] || a.nome || a.computador || a.id;
+    function ha(ms) {
+      const s = Math.round((Date.now() - ms) / 1000);
+      if (s < 90) return 'agora há pouco';
+      if (s < 3600) return `há ${Math.round(s / 60)} min`;
+      if (s < 86400) return `há ${Math.round(s / 3600)} h`;
+      return `há ${Math.round(s / 86400)} dias`;
+    }
+
+    function desenharAmigos() {
+      const lista = $('amigos');
+      lista.textContent = '';
+      if (!cliente) {
+        lista.innerHTML = '<p class="vazio">Conecte pra ver quem está com o mascote aberto.</p>';
+      } else {
+        const todos = [...amigos.values()].sort((a, b) => (b.online - a.online) || nomeDe(a).localeCompare(nomeDe(b)));
+        const online = todos.filter((a) => a.online).length;
+        lista.append(botaoAmigo({ id: 'todos', online: online > 0 }, `Todos`, `${online} online agora`));
+        for (const a of todos) {
+          lista.append(botaoAmigo(a, nomeDe(a), a.online ? `online · ${a.computador || ''}` : `offline · visto ${ha(a.quando)}`));
+        }
+        if (!todos.length) {
+          const p = document.createElement('p');
+          p.className = 'vazio';
+          p.textContent = 'Ninguém com o mascote aberto ainda.';
+          lista.append(p);
+        }
+      }
+      desenharAlvo();
+    }
+
+    function botaoAmigo(a, nome, detalhe) {
+      const b = document.createElement('button');
+      b.className = 'amigo' + (a.online ? ' online' : '') + (alvo === a.id ? ' sel' : '');
+      const ponto = document.createElement('span');
+      ponto.className = 'ponto';
+      const txt = document.createElement('span');
+      const n = document.createElement('b');
+      n.textContent = nome;
+      const d = document.createElement('small');
+      d.textContent = detalhe;
+      txt.append(n, d);
+      b.append(ponto, txt);
+      b.addEventListener('click', () => { alvo = a.id; desenharAmigos(); });
+      return b;
+    }
+
+    function desenharAlvo() {
+      const a = amigos.get(alvo);
+      const online = alvo === 'todos' ? [...amigos.values()].some((x) => x.online) : !!a?.online;
+      $('alvoNome').textContent = alvo === 'todos' ? 'Todos os mascotes' : a ? nomeDe(a) : 'Ninguém escolhido';
+      $('renomear').hidden = !a;
+      $('esquecer').hidden = !a || a.online;
+      for (const b of document.querySelectorAll('button[data-acao]')) b.disabled = !cliente || !online;
+    }
+
+    $('renomear').addEventListener('click', () => {
+      const a = amigos.get(alvo);
+      const novo = window.prompt(`Apelido pra ${nomeDe(a)}:`, nomeDe(a));
+      if (novo === null) return;
+      if (novo.trim()) apelidos[a.id] = novo.trim(); else delete apelidos[a.id];
+      guardar('mpet-apelidos', apelidos);
+      desenharAmigos();
+    });
+
+    // tira da lista um mascote offline (apaga o status guardado no servidor)
+    $('esquecer').addEventListener('click', () => {
+      cliente?.publish(`${base}/status/${alvo}`, '', { retain: true, qos: 1 });
+      amigos.delete(alvo);
+      alvo = 'todos';
+      desenharAmigos();
+    });
+
+    // ---- enviar comando
+    function enviar(acao, texto, rotulo) {
+      if (!cliente) return;
+      cliente.publish(`${base}/cmd/${alvo}`, JSON.stringify({ acao, texto: texto || undefined, quando: Date.now() }), { qos: 1 });
+      const quem = alvo === 'todos' ? 'todos' : nomeDe(amigos.get(alvo) || { id: alvo });
+      historico.unshift({ hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), rotulo, quem, texto });
+      historico.length = Math.min(historico.length, 30);
+      const ul = $('historico');
+      ul.textContent = '';
+      for (const h of historico) {
+        const li = document.createElement('li');
+        li.append(`${h.hora} · `);
+        const b = document.createElement('b');
+        b.textContent = h.rotulo;
+        li.append(b, ` → ${h.quem}${h.texto ? ` · “${h.texto}”` : ''}`);
+        ul.append(li);
+      }
+    }
+
+    setInterval(desenharAmigos, 30000); // atualiza o "visto há…"
+    desenharAmigos();
+    if (cfg.sala) conectar();
+  </script>
+</body>
+</html>

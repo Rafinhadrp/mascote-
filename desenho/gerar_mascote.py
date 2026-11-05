@@ -644,7 +644,7 @@ def violao():
         # mãos: uma no braço, a outra batendo nas cordas
         t.pts(19, g - 1, MAOS['>'], B)
         t.pts(6, g - 1 + (f % 2) * 2, MAOS['<'], B)
-        quadros.append((t.contorno(), 140))
+        quadros.append((t.contorno(), 230))
     return quadros
 
 

@@ -22,4 +22,9 @@
   aplicar(config);
   ponte.aoConfig(aplicar);
   ponte.aoComando((nome) => pet.travessura(nome));
+  // comandos do painel de controle remoto (main.js já filtrou o que é permitido)
+  ponte.aoRemoto(({ acao, texto, dono }) => {
+    if (acao === 'conectado') pet.falar(`🎮 ${dono} pode me controlar agora`, 3500);
+    else pet.travessura(acao, { texto });
+  });
 })();

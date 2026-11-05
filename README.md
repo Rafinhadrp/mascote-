@@ -24,8 +24,8 @@ O `.exe` é gerado sozinho pelo GitHub (aba **Actions**) a cada mudança neste r
 ## O que ele apronta
 
 **Roubando o mouse** (cada vez de um jeito):
-- Fica **desconfiado** olhando pro mouse e vai chegando **de fininho**, na ponta dos pés. Se você mexe o mouse,
-  ele congela e disfarça (*"🎵 fiu fiu..."*). Quando chega pertinho, dá o bote: *"AGORA!"*
+- Fica **desconfiado** olhando pro mouse e vai chegando **de fininho**, na ponta dos pés, sem dar um pio. Se você
+  mexe o mouse, ele congela e disfarça. Quando chega pertinho, dá o bote.
 - **Jeito escandaloso:** gargalha *"HEHEHE roubei seu mouse!"*, foge em zigue-zague arrastando o mouse, se esconde
   com ele atrás de um botão ou janela e devolve rindo, de óculos escuros 😎.
 - **Jeito silencioso:** pega sem alarde e leva o mouse de fininho até um canto da tela. Se você perceber e mexer
@@ -38,7 +38,8 @@ O `.exe` é gerado sozinho pelo GitHub (aba **Actions**) a cada mudança neste r
   Windows**. Ficam empilhados (no máximo 3), somem sozinhos depois de um tempo ou no ×.
 - 📣 Vai pra um canto da tela, **pula e chama**: *"ei, ei! Você sabia que o Rafinha é o mais lindo do Brasil?"*
 - 🎸 **Senta na barra de tarefas** com as perninhas penduradas e **toca violão**: anuncia a música
-  (*"🎸 tocando: Malbec — Henrique & Diego e Dennis DJ"*), cantarola e agradece o público no final.
+  (*"🎸 tocando: Malbec — Henrique & Diego e Dennis DJ"*) e canta com calma: às vezes um trecho, às vezes metade,
+  de vez em quando a música inteira ou um medley de duas. Depois agradece e vai fazer outra coisa.
 - Se esconde atrás de botões e janelas, espiando. Chegou perto? Leva um susto e foge.
 - Dança, programa no notebook, fica pensando, boceja e dorme quando você some.
 - Avisa a hora cheia (*"15h! bebe uma água 💧"*), lembra do almoço ao meio-dia e comemora a **sexta-feira** 🎉.
@@ -65,6 +66,35 @@ O `.exe` é gerado sozinho pelo GitHub (aba **Actions**) a cada mudança neste r
 
 > **Funciona melhor no Windows.** No macOS ele roda, mas não rouba o mouse nem acha os botões dos outros
 > apps. No Linux rouba o mouse se tiver o `xdotool`.
+
+## 🎮 Controle remoto (painel)
+
+Você manda o mascote dos seus amigos fazer coisas: cada amigo com o mascote aberto aparece numa lista no
+**painel**, e você clica nos botões dele (roubar o mouse, violão, dançar, mandar ele falar uma frase, mandar
+bilhete...). Só dá pra mandar ações do mascote; o painel não acessa mais nada do computador de ninguém.
+
+**Configurar (uma vez só):**
+1. No GitHub, em **Settings → Secrets and variables → Actions → New repository secret**, crie o segredo
+   **`MASCOTE_SALA`** com uma senha comprida e difícil (ex.: `mascote-k3j9x0q2...`). É ela que liga o controle
+   remoto e separa os seus mascotes dos de outras pessoas.
+2. (Opcional) Na aba **Variables** do mesmo lugar, crie **`MASCOTE_DONO`** com o seu nome (padrão: `Rafinha`).
+   É o nome que aparece pros amigos.
+3. Gere o `.exe` de novo (qualquer mudança no repositório, ou **Actions → Mascote R para Windows → Run workflow**)
+   e mande o link pros amigos.
+
+**Usar:** abra o **`painel.html`** (dá pra abrir o arquivo direto no navegador, ou pelo GitHub Pages, abaixo),
+cole a mesma sala em **Conexão** e clique em **Conectar**. Quem estiver com o mascote aberto aparece na lista.
+
+- **Painel no celular / em qualquer lugar:** em **Settings → Pages**, escolha *Deploy from a branch*, branch
+  `main`, pasta `/ (root)`. O painel fica em `https://rafinhadrp.github.io/mascote-/painel.html` (a sala não
+  fica na página; você digita uma vez e ela fica salva só no seu navegador).
+- **Os amigos sabem e podem desligar:** quando conecta, o mascote avisa *"🎮 Rafinha pode me controlar agora"*,
+  e no ícone dele tem **"Deixar Rafinha controlar pelo painel"** pra ligar/desligar.
+- **Servidor:** por padrão usa o servidor público e gratuito da HiveMQ, sem cadastro. Qualquer um que souber a
+  sala consegue mandar comandos, e o nome do computador dos amigos passa por esse servidor público. Pra ficar
+  privado, crie um servidor grátis no [HiveMQ Cloud](https://www.hivemq.com/mqtt/) e coloque o endereço
+  (`wss://...:8884/mqtt`), usuário e senha nos segredos `MASCOTE_SERVIDOR`, `MASCOTE_USUARIO` e `MASCOTE_SENHA`
+  — e no painel, em Conexão.
 
 ## 🎤 Letras pro violão
 
@@ -93,7 +123,8 @@ O que dá pra mudar pelo menu do ícone fica salvo sozinho. O resto está no **`
 | `tamanho` | tamanho em px (padrão 56; pelo menu: 48, 56, 72 ou 96) |
 | `travessuras` | liga/desliga `roubarMouse`, `esconder`, `bilhetes`, `curiosidades`, `violao` |
 | `botoesDeOutrosApps` | `false` = não procura botões dos outros programas (só janelas e bordas) |
-| `intervaloRoubo` | segundos entre um roubo e outro, ex.: `[25, 70]` |
+| `intervaloRoubo` | segundos entre um roubo e outro, ex.: `[120, 300]` |
+| `descanso` | segundos de sossego depois de cada travessura grande, ex.: `[45, 110]` |
 | `sonoDepoisDe` | segundos sem mexer o mouse até ele dormir |
 | `mensagens` | textos dos bilhetes |
 | `bilheteSomeDepois` | segundos até o bilhete sumir sozinho (`0` = só fecha no ×) |
@@ -127,6 +158,7 @@ No site ele se esconde atrás dos botões e cards da página e esconde o mouse p
 | `preload.js`, `desktop.html`, `desktop.js` | Ligam o mascote dentro da janela do app |
 | `sprites/` | GIFs das caras e poses + ícone |
 | `config.json` | Configuração padrão |
+| `painel.html`, `vendor/` | Painel do controle remoto (abre no navegador) |
 | `demo.html` | Teste da versão de site |
 | `desenho/` | O mascote em pixel-art (GIF, SVG, PNG) e o script que gera tudo |
 | `.github/workflows/windows.yml` | Gera o `MascoteR.exe` e publica em Releases |

@@ -24,7 +24,8 @@
       "mascote-pet.js",
       "config.json",
       "sprites/**",
-      "letras/**"
+      "letras/**",
+      "remoto.json"
     ],
     "win": {
       "target": "portable",
@@ -37,5 +38,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Rafinhadrp/mascote-"
+  },
+  "dependencies": {
+    "mqtt": "^5.16.1"
   }
 }

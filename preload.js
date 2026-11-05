@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('mascoteDesktop', {
   aoMoverCursor: (fn) => ouvir('cursor', (p) => fn(p.x, p.y)),
   aoComando: (fn) => ouvir('comando', fn),
   aoConfig: (fn) => ouvir('config', fn),
+  aoRemoto: (fn) => ouvir('remoto', fn),
   moverCursor: (x, y) => ipcRenderer.send('mover-cursor', x, y),
   clicavel: (sim) => ipcRenderer.send('clicavel', sim),
 });
