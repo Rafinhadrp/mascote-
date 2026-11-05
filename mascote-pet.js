@@ -39,6 +39,9 @@
     boaNoite: ['boa noite! 🌙', 'trabalhando a essa hora? 🌙'],
     tramar: ['hehe... 😈', 'que mouse bonito...', '*plano maligno*', 'hmmm 😏', 'tive uma ideia...', 'muahaha', 'ninguém desconfia de nada...'],
     desconfiado: ['hmm... 🤨', 'tô de olho em você', 'que cursor suspeito...', 'esse mouse aí...', 'interessante... 🧐', 'nada não... 👀'],
+    sumindo: ['tchau! 👋', 'já volto 😜', 'sumi! 🫥', 'agora você não me vê'],
+    voltando: ['voltei! 👋', 'cadê todo mundo?', 'sentiram saudade? 😄', 'de volta!'],
+    paradinho: ['fico quietinho aqui 🧊', 'nem me mexo 🤫', 'de boa no cantinho', 'pausa 😌'],
     curioso: ['👀', 'o que cê tá fazendo?', 'posso ver?', 'hmm, interessante', 'deixa eu ver isso aí'],
     quase: ['quase! 😤', 'escapou por pouco...', 'da próxima eu pego', 'mouse liso esse!'],
     pegou: ['HEHEHE roubei seu mouse!', 'HAHAHA é meu agora!', 'hihihi peguei!', 'roubadooo 😈', 'perdeu, playboy! 😎',
@@ -234,6 +237,9 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     let ultimoEnviado = null;
     let arrasto = null;      // { dx, dy, inicio, moveu }
     let pausado = false;
+    let escondido = false;          // sumiu da tela (botão fugir); fica fora até mandarem voltar
+    let congelado = false;          // paradinho num canto (botão ficar parado); não anda sozinho
+    let congeladoAcomodado = false; // já chegou no canto/onde foi largado
     let clicavel = null;
     let timerFala = 0;
     let proximoRoubo = agora() + aleatorio(40, 90) * 1000;
@@ -296,6 +302,8 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
         texto: falando ? fala.textContent : '',
         x: +(limitar(pos.x / larg(), 0, 1)).toFixed(3),
         y: +(limitar(pos.y / alt(), 0, 1)).toFixed(3),
+        escondido: escondido || undefined,
+        congelado: congelado || undefined,
       };
       const chave = JSON.stringify(estado);
       if (chave === ultimoEstado) return;
@@ -1090,6 +1098,60 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       await esperar(t, ms);
     }
 
+    // ---- sumir da tela e ficar paradinho (botões que ligam/desligam)
+    function mostrar() {
+      if (raiz.style.visibility === 'hidden') {
+        raiz.style.visibility = '';
+        pos.x = limitar(pos.x, 10 * s, larg() - 10 * s);
+        pos.y = limitar(pos.y, 20 * s, alt() - 2 * s);
+      }
+    }
+    function setEscondido(v) {
+      escondido = v;
+      if (!v) mostrar();
+    }
+    function setCongelado(v) {
+      congelado = v;
+      if (v) congeladoAcomodado = false;
+    }
+    // canto tranquilo (embaixo à esquerda, acima da barra de tarefas) pra ele ficar sem atrapalhar
+    function cantoTranquilo() {
+      const a = desktop?.area;
+      return { x: 14 * s, y: (a ? a.bottom : alt()) - 2 * s };
+    }
+
+    // Corre pra fora da tela e some; fica fora até mandarem voltar.
+    async function ficarEscondido(t) {
+      if (raiz.style.visibility !== 'hidden') {
+        falar(frase('sumindo'), 1500);
+        const destinoX = pos.x < larg() / 2 ? -20 * s : larg() + 20 * s;
+        await andarAte(t, { x: destinoX, y: pos.y }, { velocidade: 75, nome: 'carregando', limite: 6000 });
+        raiz.style.visibility = 'hidden';
+      }
+      await esperar(t, 1e9, () => escondido); // espera o botão "voltar"
+      // voltou: reaparece na borda e entra andando
+      mostrar();
+      pos.x = destinoLado();
+      sprite('acenando');
+      falar(frase('voltando'), 2000);
+      await esperar(t, 900);
+      await andarAte(t, pontoAleatorio(), { velocidade: 45, limite: 6000 });
+    }
+    const destinoLado = () => (Math.random() < 0.5 ? -18 * s : larg() + 18 * s);
+
+    // Vai pro canto e fica paradinho; a pessoa pode arrastar que ele continua parado onde largar.
+    async function ficarCongelado(t) {
+      if (!congeladoAcomodado) {
+        sprite('andando');
+        await andarAte(t, cantoTranquilo(), { velocidade: 45, limite: 8000 });
+        congeladoAcomodado = true;
+        virado = false;
+        if (Math.random() < 0.5) falar(frase('paradinho'), 1800);
+      }
+      sprite('parado');
+      await esperar(t, 1e9, () => congelado); // fica parado até soltarem
+    }
+
     const TRAVESSURAS = {
       roubar: roubarMouse, esconder, bilhete: deixarBilhete, dormir, programar, passear,
       curiosidade: anunciar, violao: tocarViolao, dancar, moonwalk, falar: recado,
@@ -1130,7 +1192,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     let carinhoDesde = 0;
     let ultimoCarinho = 0;
     function easterEggsDoMouse() {
-      if (arrasto || segurando || largado || reacao) return;
+      if (arrasto || segurando || largado || reacao || escondido || congelado) return;
       const c = cabeca();
       const d = distancia(cursor, c);
       if (d > 12 * s && d < 70 * s / 2 + 60) {
@@ -1177,7 +1239,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     async function cerebro() {
       for (;;) {
         const t = (tarefa = { viva: true });
-        const acao = reacao || escolher();
+        const acao = reacao || (escondido ? ficarEscondido : congelado ? ficarCongelado : escolher());
         reacao = null;
         try {
           await acao(t);
@@ -1324,12 +1386,19 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     return {
       // opcoes.texto: a frase do recado, do bilhete ou da curiosidade
       travessura(nome, opcoes = {}) {
+        // botões que ligam/desligam (mesmo botão aperta pra sumir e pra voltar)
+        if (nome === 'fugir') { setEscondido(!escondido); reagir(escondido ? ficarEscondido : escolher()); return; }
+        if (nome === 'congelar') { setCongelado(!congelado); reagir(congelado ? ficarCongelado : escolher()); return; }
         const fn = TRAVESSURAS[nome];
         if (!fn) throw new Error(`Travessura desconhecida: ${nome} (use ${Object.keys(TRAVESSURAS).join(', ')})`);
         if (nome === 'bilhete') proximoBilhete = 0;
+        if (escondido) setEscondido(false); // qualquer outra ação tira do modo sumido/parado
+        if (congelado) setCongelado(false);
         const texto = typeof opcoes.texto === 'string' && opcoes.texto.trim() ? opcoes.texto.trim().slice(0, 160) : undefined;
         reagir(texto ? (t) => fn(t, { texto }) : fn);
       },
+      get escondido() { return escondido; },
+      get congelado() { return congelado; },
       falar: (texto, ms) => falar(String(texto), ms),
       pausar(sim = true) { pausado = sim; if (sim && (segurando || largado)) { escapou = true; devolverCursor(); } },
       get pausado() { return pausado; },

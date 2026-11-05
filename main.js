@@ -299,6 +299,7 @@ function criarConsulta() {
 
 const ACOES_REMOTAS = new Set([
   'roubar', 'esconder', 'bilhete', 'falar', 'curiosidade', 'violao', 'dancar', 'dormir', 'programar', 'moonwalk', 'passear',
+  'fugir', 'congelar',
 ]);
 
 // remoto.json é gerado pelo GitHub na hora de montar o .exe, a partir dos segredos do repositório.
@@ -455,6 +456,9 @@ function criarBandeja() {
     { label: 'Dançar', click: comando('dancar') },
     { label: 'Programar', click: comando('programar') },
     { label: 'Dormir', click: comando('dormir') },
+    { type: 'separator' },
+    { label: 'Sumir / voltar pra tela', click: comando('fugir') },
+    { label: 'Ficar paradinho no canto / soltar', click: comando('congelar') },
     { type: 'separator' },
     {
       label: 'Tamanho',

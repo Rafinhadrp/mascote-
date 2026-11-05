@@ -57,6 +57,8 @@
     .tela::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 7%; background: #05070a; border-top: 1px solid #000; } /* "barra de tarefas" */
     .mini { position: absolute; width: 11%; image-rendering: pixelated; transform: translate(-50%, -100%); transition: left .25s linear, top .25s linear; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
     .mini-fala { position: absolute; transform: translate(-50%, -100%); background: #0d1117; color: #e6edf3; border: 1px solid var(--azul); border-radius: 5px; padding: 2px 7px; font: 600 11px var(--mono); white-space: nowrap; max-width: 70%; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+    .tela-sumiu { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 6px; color: var(--fraco); font: 600 14px var(--fonte); }
+    .tela-sumiu small { color: #6e7681; font-weight: 400; }
     .acoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
     .acoes button { display: flex; align-items: center; gap: 8px; text-align: left; }
     .acoes button img { width: 28px; height: 28px; image-rendering: pixelated; flex: none; }
@@ -115,6 +117,7 @@
         <div class="tela" id="tela" hidden>
           <img class="mini" id="miniImg" alt="">
           <div class="mini-fala" id="miniFala" hidden></div>
+          <div class="tela-sumiu" id="telaSumiu" hidden>🫥 sumiu da tela<br><small>clique em "Fazer voltar" pra trazer de volta</small></div>
         </div>
         <p class="nota" id="telaNota" hidden>Espelho do bonequinho ao vivo — mostra só o mascote, nada da tela do computador.</p>
         <div class="acoes" id="acoes"></div>
@@ -146,7 +149,13 @@
       ['curiosidade', 'Curiosidade', 'chamando'], ['bilhete', 'Bilhete aleatório', 'feliz'],
       ['programar', 'Programar', 'digitando'], ['dormir', 'Dormir', 'dormindo'],
       ['moonwalk', 'Moonwalk', 'estiloso'], ['passear', 'Passear', 'andando'],
+      ['fugir', 'Sumir da tela', 'espiando'], ['congelar', 'Ficar paradinho', 'parado'],
     ];
+    // rótulo que troca conforme o estado do mascote escolhido (sumir↔voltar, parar↔soltar)
+    const ROTULO_TOGGLE = {
+      fugir: (e) => (e?.escondido ? 'Fazer voltar' : 'Sumir da tela'),
+      congelar: (e) => (e?.congelado ? 'Soltar (voltar a andar)' : 'Ficar paradinho'),
+    };
     const $ = (id) => document.getElementById(id);
     const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sem armazenamento */ } };
     const ler = (k, padrao) => { try { return JSON.parse(localStorage.getItem(k)) ?? padrao; } catch { return padrao; } };
@@ -169,7 +178,13 @@
       acenando: '👋 acenando', pensando: '🤔 pensando', dormindo: '😴 dormindo', bocejando: '🥱 bocejando',
       programando: '💻 programando', digitando: '💻 digitando', parado: '🙂 de boa', andando: '🚶 passeando',
     };
-    const descreve = (id) => { const e = estados.get(id); return e ? (OQUE[e.sprite] || '🙂 de boa') : ''; };
+    const descreve = (id) => {
+      const e = estados.get(id);
+      if (!e) return '';
+      if (e.escondido) return '🫥 sumiu da tela';
+      if (e.congelado) return '🧊 paradinho no canto';
+      return OQUE[e.sprite] || '🙂 de boa';
+    };
 
     // ---- botões de ação
     for (const [acao, rotulo, sprite, forte] of ACOES) {
@@ -179,7 +194,10 @@
       const img = document.createElement('img');
       img.src = `sprites/${sprite}-128.gif`;
       img.alt = '';
-      b.append(img, rotulo);
+      const txt = document.createElement('span');
+      txt.className = 'rotulo';
+      txt.textContent = rotulo;
+      b.append(img, txt);
       $('acoes').append(b);
     }
     document.addEventListener('click', (ev) => {
@@ -231,6 +249,7 @@
           if (!dados.length) estados.delete(id);
           else { try { estados.set(id, JSON.parse(String(dados))); } catch { return; } }
           if (id === alvo || alvo === 'todos') desenharTela();
+          atualizarLinha(id);
           atualizarAcoes();
           return;
         }
@@ -270,6 +289,7 @@
     function desenharAmigos() {
       const lista = $('amigos');
       lista.textContent = '';
+      linhaDe.clear();
       if (!cliente) {
         lista.innerHTML = '<p class="vazio">Conecte pra ver quem está com o mascote aberto.</p>';
       } else {
@@ -290,6 +310,7 @@
       desenharAlvo();
     }
 
+    const linhaDe = new Map(); // id → <small> da linha, pra atualizar o "o que ele tá fazendo" ao vivo
     function botaoAmigo(a, nome, detalhe) {
       const b = document.createElement('button');
       b.className = 'amigo' + (a.online ? ' online' : '') + (alvo === a.id ? ' sel' : '');
@@ -300,10 +321,18 @@
       n.textContent = nome;
       const d = document.createElement('small');
       d.textContent = detalhe;
+      if (a.online && a.id !== 'todos') linhaDe.set(a.id, d);
       txt.append(n, d);
       b.append(ponto, txt);
       b.addEventListener('click', () => { alvo = a.id; desenharAmigos(); });
       return b;
+    }
+
+    // atualiza só a linha de um amigo (sem reconstruir a lista, pra não perder o foco dos botões)
+    function atualizarLinha(id) {
+      const d = linhaDe.get(id);
+      const a = amigos.get(id);
+      if (d && a?.online) d.textContent = descreve(id) || `online · ${a.computador || ''}`;
     }
 
     function desenharAlvo() {
@@ -318,7 +347,12 @@
     function atualizarAcoes() {
       const a = amigos.get(alvo);
       const online = alvo === 'todos' ? [...amigos.values()].some((x) => x.online) : !!a?.online;
-      for (const b of document.querySelectorAll('button[data-acao]')) b.disabled = !cliente || !online;
+      const e = alvo === 'todos' ? null : estados.get(alvo);
+      for (const b of document.querySelectorAll('button[data-acao]')) {
+        b.disabled = !cliente || !online;
+        const toggle = ROTULO_TOGGLE[b.dataset.acao];
+        if (toggle) b.querySelector('.rotulo').textContent = toggle(e);
+      }
     }
 
     // Espelho ao vivo: mostra só o bonequinho do amigo escolhido (um de cada vez).
@@ -335,6 +369,10 @@
       $('telaNota').hidden = !e;
       if (!e) return;
       const img = $('miniImg');
+      // sumiu da tela: mostra o aviso no lugar do bonequinho
+      img.style.display = e.escondido ? 'none' : '';
+      $('telaSumiu').hidden = !e.escondido;
+      if (e.escondido) { $('miniFala').hidden = true; return; }
       const arq = `sprites/${e.sprite}-128.gif`;
       if (!img.src.endsWith(arq)) img.src = arq;
       img.style.left = (e.x * 100) + '%';

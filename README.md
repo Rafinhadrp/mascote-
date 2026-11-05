@@ -82,6 +82,18 @@ bilhete...). Só dá pra mandar ações do mascote; o painel não acessa mais na
 3. Gere o `.exe` de novo (qualquer mudança no repositório, ou **Actions → Mascote R para Windows → Run workflow**)
    e mande o link pros amigos.
 
+**Botões do painel:** roubar o mouse, se esconder, violão, dançar, curiosidade, bilhete, programar, dormir,
+moonwalk, passear, **sumir da tela** e **ficar paradinho**. Os dois últimos são liga/desliga no mesmo botão:
+
+- **Sumir da tela:** o mascote sai correndo pra fora da tela e some. Fica fora até você clicar de novo (**Fazer
+  voltar**). Bom pra dar um tempo sem fechar o app.
+- **Ficar paradinho:** ele vai pro cantinho de baixo e fica quieto, sem andar sozinho — a pessoa ainda pode
+  arrastar ele pra onde quiser que ele continua parado ali. Clica de novo (**Soltar**) e ele volta a passear.
+
+**O espelho mostra o que ele está fazendo de verdade:** o painel lê a pose que o mascote está animando naquele
+instante, não o botão que você apertou. Se ele começar a tocar violão sozinho, o painel mostra "🎸 tocando
+violão" sem ninguém mandar. (Mesmo assim, é só o estado do bonequinho; nada da tela do computador.)
+
 **Usar:** abra o **`painel.html`** (dá pra abrir o arquivo direto no navegador, ou pelo GitHub Pages, abaixo),
 cole a mesma sala em **Conexão** e clique em **Conectar**. Quem estiver com o mascote aberto aparece na lista.
 
