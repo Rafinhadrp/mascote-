@@ -282,6 +282,27 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       timerFala = setTimeout(() => fala.classList.remove('mpet-on'), ms);
     }
 
+    // Espelho: conta pro painel o que o mascote está fazendo (pose, frase, posição na tela).
+    // Nunca manda nada da tela do computador — só o estado do próprio bonequinho.
+    let ultimoEstado = '';
+    let proximoEstado = 0;
+    function reportarEstado(tempo) {
+      if (!o.aoEstado || tempo < proximoEstado) return;
+      proximoEstado = tempo + 200;
+      const falando = fala.classList.contains('mpet-on');
+      const estado = {
+        sprite: spriteAtual,
+        virado,
+        texto: falando ? fala.textContent : '',
+        x: +(limitar(pos.x / larg(), 0, 1)).toFixed(3),
+        y: +(limitar(pos.y / alt(), 0, 1)).toFixed(3),
+      };
+      const chave = JSON.stringify(estado);
+      if (chave === ultimoEstado) return;
+      ultimoEstado = chave;
+      o.aoEstado(estado);
+    }
+
     // Pega a próxima frase de uma lista sem repetir até usar todas.
     const sacos = new Map();
     function sacoDe(chave, lista) {
@@ -1291,6 +1312,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
         const quer = !!arrasto || !!(el && el.closest('.mpet-clicavel'));
         if (quer !== clicavel) desktop.clicavel((clicavel = quer));
       }
+      reportarEstado(tempo);
       requestAnimationFrame(desenhar);
     }
 

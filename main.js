@@ -325,6 +325,7 @@ function ligarRemoto() {
   const base = `mascote-r/${c.sala}`;
   const id = meuId();
   const topicoStatus = `${base}/status/${id}`;
+  const topicoEstado = `${base}/estado/${id}`;
   const status = (online) => JSON.stringify({
     id, online, nome: ajustes.nomeNoPainel || os.userInfo().username, computador: os.hostname(), quando: Date.now(),
   });
@@ -353,18 +354,20 @@ function ligarRemoto() {
     janela?.webContents.send('remoto', { acao: cmd.acao, texto, dono: c.dono });
   });
   cliente.on('error', (err) => log('controle remoto:', err.message));
-  remoto = { cliente, topicoStatus, status, dono: c.dono };
+  remoto = { cliente, topicoStatus, topicoEstado, status, dono: c.dono };
   atualizarBandeja();
 }
 
 function desligarRemoto(pronto) {
   if (!remoto) return pronto?.();
-  const { cliente, topicoStatus, status } = remoto;
+  const { cliente, topicoStatus, topicoEstado, status } = remoto;
   remoto = null;
   atualizarBandeja();
   const fim = () => cliente.end(false, {}, () => pronto?.());
-  if (cliente.connected) cliente.publish(topicoStatus, status(false), { retain: true, qos: 1 }, fim);
-  else fim();
+  if (cliente.connected) {
+    cliente.publish(topicoEstado, '', { retain: true, qos: 0 }); // apaga o espelho guardado
+    cliente.publish(topicoStatus, status(false), { retain: true, qos: 1 }, fim);
+  } else fim();
 }
 
 // ---------------------------------------------------------------- janela
@@ -530,6 +533,13 @@ ipcMain.on('clicavel', (_ev, sim) => {
   if (!janela) return;
   if (sim) janela.setIgnoreMouseEvents(false);
   else janela.setIgnoreMouseEvents(true, { forward: true });
+});
+
+// Espelho: publica o estado do bonequinho pro painel (nunca nada da tela do computador).
+ipcMain.on('estado', (_ev, estado) => {
+  if (remoto?.cliente?.connected) {
+    remoto.cliente.publish(remoto.topicoEstado, JSON.stringify(estado), { retain: true, qos: 0 });
+  }
 });
 
 // ---------------------------------------------------------------- início

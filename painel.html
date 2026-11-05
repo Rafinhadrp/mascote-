@@ -53,6 +53,10 @@
     .alvo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
     .alvo h3 { margin: 0; font-size: 20px; }
     .alvo button { padding: 4px 10px; font-size: 13px; }
+    .tela { position: relative; width: 100%; aspect-ratio: 16 / 9; background: linear-gradient(160deg, #11161d, #0b0f14); border: 1px solid var(--borda); border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+    .tela::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 7%; background: #05070a; border-top: 1px solid #000; } /* "barra de tarefas" */
+    .mini { position: absolute; width: 11%; image-rendering: pixelated; transform: translate(-50%, -100%); transition: left .25s linear, top .25s linear; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+    .mini-fala { position: absolute; transform: translate(-50%, -100%); background: #0d1117; color: #e6edf3; border: 1px solid var(--azul); border-radius: 5px; padding: 2px 7px; font: 600 11px var(--mono); white-space: nowrap; max-width: 70%; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
     .acoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
     .acoes button { display: flex; align-items: center; gap: 8px; text-align: left; }
     .acoes button img { width: 28px; height: 28px; image-rendering: pixelated; flex: none; }
@@ -108,6 +112,11 @@
           <button id="renomear" hidden>Mudar apelido</button>
           <button id="esquecer" hidden>Tirar da lista</button>
         </div>
+        <div class="tela" id="tela" hidden>
+          <img class="mini" id="miniImg" alt="">
+          <div class="mini-fala" id="miniFala" hidden></div>
+        </div>
+        <p class="nota" id="telaNota" hidden>Espelho do bonequinho ao vivo — mostra só o mascote, nada da tela do computador.</p>
         <div class="acoes" id="acoes"></div>
         <div class="mensagem">
           <label>Escrever algo pra ele
@@ -146,8 +155,21 @@
     let base = '';
     let alvo = 'todos';
     const amigos = new Map(); // id → { id, nome, computador, online, quando }
+    const estados = new Map(); // id → { sprite, virado, texto, x, y } (espelho do bonequinho)
     const apelidos = ler('mpet-apelidos', {});
     const historico = [];
+
+    // o que mostrar na listinha, pela pose atual do mascote
+    const OQUE = {
+      roubar: '😈 roubando o mouse', carregando: '😈 fugindo com o mouse', fininho: '🥷 chegando de fininho',
+      tramando: '😏 tramando algo', desconfiado: '🤨 de olho no mouse', espiando: '🙈 escondido',
+      rindo: '🤣 gargalhando', convencido: '😎 convencido', estiloso: '😎 estiloso', emburrado: '😤 emburrado',
+      chorando: '😭 chorando', assustado: '😱 levou um susto', tonto: '😵 tonto', apaixonado: '🥰 apaixonado',
+      violao: '🎸 tocando violão', dancando: '🕺 dançando', chamando: '📣 chamando', feliz: '😄 feliz',
+      acenando: '👋 acenando', pensando: '🤔 pensando', dormindo: '😴 dormindo', bocejando: '🥱 bocejando',
+      programando: '💻 programando', digitando: '💻 digitando', parado: '🙂 de boa', andando: '🚶 passeando',
+    };
+    const descreve = (id) => { const e = estados.get(id); return e ? (OQUE[e.sprite] || '🙂 de boa') : ''; };
 
     // ---- botões de ação
     for (const [acao, rotulo, sprite, forte] of ACOES) {
@@ -195,15 +217,24 @@
       });
       cliente.on('connect', () => {
         estado('conectado', 'on');
-        cliente.subscribe(`${base}/status/+`, { qos: 1 });
+        cliente.subscribe([`${base}/status/+`, `${base}/estado/+`], { qos: 1 });
         $('config').open = false;
       });
       cliente.on('reconnect', () => estado('reconectando…'));
       cliente.on('error', (err) => estado('erro: ' + err.message, 'erro'));
       cliente.on('close', () => { if (cliente) estado('sem conexão', 'erro'); });
       cliente.on('message', (topico, dados) => {
-        const id = topico.split('/').pop();
-        if (!dados.length) amigos.delete(id);
+        const partes = topico.split('/');
+        const tipo = partes[partes.length - 2];
+        const id = partes[partes.length - 1];
+        if (tipo === 'estado') { // espelho do bonequinho
+          if (!dados.length) estados.delete(id);
+          else { try { estados.set(id, JSON.parse(String(dados))); } catch { return; } }
+          if (id === alvo || alvo === 'todos') desenharTela();
+          atualizarAcoes();
+          return;
+        }
+        if (!dados.length) { amigos.delete(id); estados.delete(id); }
         else {
           try { amigos.set(id, { ...JSON.parse(String(dados)), id }); } catch { return; }
         }
@@ -216,6 +247,7 @@
     function desconectar() {
       if (cliente) { const c = cliente; cliente = null; c.end(true); }
       amigos.clear();
+      estados.clear();
       estado('desconectado');
       $('conectar').disabled = false;
       $('desconectar').disabled = true;
@@ -245,7 +277,8 @@
         const online = todos.filter((a) => a.online).length;
         lista.append(botaoAmigo({ id: 'todos', online: online > 0 }, `Todos`, `${online} online agora`));
         for (const a of todos) {
-          lista.append(botaoAmigo(a, nomeDe(a), a.online ? `online · ${a.computador || ''}` : `offline · visto ${ha(a.quando)}`));
+          const detalhe = a.online ? (descreve(a.id) || `online · ${a.computador || ''}`) : `offline · visto ${ha(a.quando)}`;
+          lista.append(botaoAmigo(a, nomeDe(a), detalhe));
         }
         if (!todos.length) {
           const p = document.createElement('p');
@@ -275,11 +308,45 @@
 
     function desenharAlvo() {
       const a = amigos.get(alvo);
-      const online = alvo === 'todos' ? [...amigos.values()].some((x) => x.online) : !!a?.online;
       $('alvoNome').textContent = alvo === 'todos' ? 'Todos os mascotes' : a ? nomeDe(a) : 'Ninguém escolhido';
       $('renomear').hidden = !a;
       $('esquecer').hidden = !a || a.online;
+      atualizarAcoes();
+      desenharTela();
+    }
+
+    function atualizarAcoes() {
+      const a = amigos.get(alvo);
+      const online = alvo === 'todos' ? [...amigos.values()].some((x) => x.online) : !!a?.online;
       for (const b of document.querySelectorAll('button[data-acao]')) b.disabled = !cliente || !online;
+    }
+
+    // Espelho ao vivo: mostra só o bonequinho do amigo escolhido (um de cada vez).
+    function desenharTela() {
+      // com "Todos", mostra o primeiro online que tem espelho
+      let id = alvo;
+      if (alvo === 'todos') {
+        const vivo = [...amigos.values()].find((a) => a.online && estados.has(a.id));
+        id = vivo?.id;
+      }
+      const e = id && amigos.get(id)?.online ? estados.get(id) : null;
+      const tela = $('tela');
+      tela.hidden = !e;
+      $('telaNota').hidden = !e;
+      if (!e) return;
+      const img = $('miniImg');
+      const arq = `sprites/${e.sprite}-128.gif`;
+      if (!img.src.endsWith(arq)) img.src = arq;
+      img.style.left = (e.x * 100) + '%';
+      img.style.top = (e.y * 100) + '%';
+      img.style.transform = `translate(-50%, -100%)${e.virado ? ' scaleX(-1)' : ''}`;
+      const bolha = $('miniFala');
+      bolha.hidden = !e.texto;
+      if (e.texto) {
+        bolha.textContent = e.texto;
+        bolha.style.left = Math.min(Math.max(e.x * 100, 18), 82) + '%';
+        bolha.style.top = 'calc(' + (e.y * 100) + '% - 9%)';
+      }
     }
 
     $('renomear').addEventListener('click', () => {

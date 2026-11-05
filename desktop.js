@@ -14,6 +14,7 @@
         saudar: !pet,
         sprites: 'sprites/',
         desktop: { ...ponte, podeMoverCursor, area },
+        aoEstado: (estado) => ponte.estado(estado), // espelho: só o estado do bonequinho
       });
     }
     pet.pausar(!!cfg.pausado);
