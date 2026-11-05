@@ -67,6 +67,35 @@ O `.exe` é gerado sozinho pelo GitHub (aba **Actions**) a cada mudança neste r
 > **Funciona melhor no Windows.** No macOS ele roda, mas não rouba o mouse nem acha os botões dos outros
 > apps. No Linux rouba o mouse se tiver o `xdotool`.
 
+## 🎮 Controle remoto (painel)
+
+Você manda o mascote dos seus amigos fazer coisas: cada amigo com o mascote aberto aparece numa lista no
+**painel**, e você clica nos botões dele (roubar o mouse, violão, dançar, mandar ele falar uma frase, mandar
+bilhete...). Só dá pra mandar ações do mascote; o painel não acessa mais nada do computador de ninguém.
+
+**Configurar (uma vez só):**
+1. No GitHub, em **Settings → Secrets and variables → Actions → New repository secret**, crie o segredo
+   **`MASCOTE_SALA`** com uma senha comprida e difícil (ex.: `mascote-k3j9x0q2...`). É ela que liga o controle
+   remoto e separa os seus mascotes dos de outras pessoas.
+2. (Opcional) Na aba **Variables** do mesmo lugar, crie **`MASCOTE_DONO`** com o seu nome (padrão: `Rafinha`).
+   É o nome que aparece pros amigos.
+3. Gere o `.exe` de novo (qualquer mudança no repositório, ou **Actions → Mascote R para Windows → Run workflow**)
+   e mande o link pros amigos.
+
+**Usar:** abra o **`painel.html`** (dá pra abrir o arquivo direto no navegador, ou pelo GitHub Pages, abaixo),
+cole a mesma sala em **Conexão** e clique em **Conectar**. Quem estiver com o mascote aberto aparece na lista.
+
+- **Painel no celular / em qualquer lugar:** em **Settings → Pages**, escolha *Deploy from a branch*, branch
+  `main`, pasta `/ (root)`. O painel fica em `https://rafinhadrp.github.io/mascote-/painel.html` (a sala não
+  fica na página; você digita uma vez e ela fica salva só no seu navegador).
+- **Os amigos sabem e podem desligar:** quando conecta, o mascote avisa *"🎮 Rafinha pode me controlar agora"*,
+  e no ícone dele tem **"Deixar Rafinha controlar pelo painel"** pra ligar/desligar.
+- **Servidor:** por padrão usa o servidor público e gratuito da HiveMQ, sem cadastro. Qualquer um que souber a
+  sala consegue mandar comandos, e o nome do computador dos amigos passa por esse servidor público. Pra ficar
+  privado, crie um servidor grátis no [HiveMQ Cloud](https://www.hivemq.com/mqtt/) e coloque o endereço
+  (`wss://...:8884/mqtt`), usuário e senha nos segredos `MASCOTE_SERVIDOR`, `MASCOTE_USUARIO` e `MASCOTE_SENHA`
+  — e no painel, em Conexão.
+
 ## 🎤 Letras pro violão
 
 Quando toca violão, ele anuncia a música e cantarola. Se você colocar a letra, ele **canta em legendinha**, uma
@@ -129,6 +158,7 @@ No site ele se esconde atrás dos botões e cards da página e esconde o mouse p
 | `preload.js`, `desktop.html`, `desktop.js` | Ligam o mascote dentro da janela do app |
 | `sprites/` | GIFs das caras e poses + ícone |
 | `config.json` | Configuração padrão |
+| `painel.html`, `vendor/` | Painel do controle remoto (abre no navegador) |
 | `demo.html` | Teste da versão de site |
 | `desenho/` | O mascote em pixel-art (GIF, SVG, PNG) e o script que gera tudo |
 | `.github/workflows/windows.yml` | Gera o `MascoteR.exe` e publica em Releases |

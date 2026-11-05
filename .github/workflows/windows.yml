@@ -22,6 +22,19 @@ jobs:
 
       - run: npm ci
 
+      # Controle remoto: a sala (e, se quiser, um servidor próprio) vem dos segredos do repositório,
+      # pra não ficar visível no código. Sem MASCOTE_SALA o .exe sai sem controle remoto.
+      - name: Configuração do controle remoto
+        shell: bash
+        env:
+          SALA: ${{ secrets.MASCOTE_SALA }}
+          SERVIDOR: ${{ secrets.MASCOTE_SERVIDOR }}
+          USUARIO: ${{ secrets.MASCOTE_USUARIO }}
+          SENHA: ${{ secrets.MASCOTE_SENHA }}
+          DONO: ${{ vars.MASCOTE_DONO }}
+        run: |
+          node -e "const e = process.env; require('fs').writeFileSync('remoto.json', JSON.stringify({ sala: e.SALA || '', servidor: e.SERVIDOR || undefined, usuario: e.USUARIO || undefined, senha: e.SENHA || undefined, dono: e.DONO || 'Rafinha' }))"
+
       - run: npm run empacotar
 
       - uses: actions/upload-artifact@v4

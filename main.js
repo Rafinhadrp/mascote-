@@ -5,18 +5,25 @@
  * cliques passarem (menos em cima do mascote e dos bilhetes). O mascote roda dentro dela
  * com o mesmo mascote-pet.js do site. No Windows ele arrasta o mouse de verdade e se esconde
  * atrás dos botões e janelas dos outros programas.
+ *
+ * Controle remoto (opcional): se o .exe tiver uma "sala" configurada, o mascote se conecta a um
+ * servidor de mensagens (MQTT) e obedece aos botões do painel.html de quem gerou o .exe.
  */
 const { app, BrowserWindow, Menu, Tray, ipcMain, nativeImage, screen, shell } = require('electron');
 const { spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const readline = require('node:readline');
+const os = require('node:os');
+const crypto = require('node:crypto');
+const mqtt = require('mqtt');
 
 let janela = null;
 let bandeja = null;
 let movedor = null;
 let consulta = null;
 let ajustes = {};
+let remoto = null;
 
 const TAMANHOS = [['Mini', 48], ['Pequeno', 56], ['Médio', 72], ['Grande', 96]];
 
@@ -285,6 +292,81 @@ function criarConsulta() {
   };
 }
 
+// ---------------------------------------------------------------- controle remoto
+// O painel publica comandos em mascote-r/<sala>/cmd/<id do amigo> (ou .../cmd/todos) e cada
+// mascote avisa que está online em mascote-r/<sala>/status/<id>. Só ações do mascote passam:
+// nada aqui roda programa, abre arquivo ou mexe em outra coisa do computador.
+
+const ACOES_REMOTAS = new Set([
+  'roubar', 'esconder', 'bilhete', 'falar', 'curiosidade', 'violao', 'dancar', 'dormir', 'programar', 'moonwalk', 'passear',
+]);
+
+// remoto.json é gerado pelo GitHub na hora de montar o .exe, a partir dos segredos do repositório.
+function configRemoto() {
+  const r = { ...lerJson(path.join(__dirname, 'remoto.json')), ...(config().controleRemoto || {}) };
+  if (!r.sala) return null;
+  return {
+    servidor: r.servidor || 'wss://broker.hivemq.com:8884/mqtt',
+    usuario: r.usuario || undefined,
+    senha: r.senha || undefined,
+    sala: String(r.sala),
+    dono: r.dono || 'o dono',
+  };
+}
+
+function meuId() {
+  if (!ajustes.idRemoto) salvarAjuste('idRemoto', crypto.randomBytes(6).toString('hex'));
+  return ajustes.idRemoto;
+}
+
+function ligarRemoto() {
+  const c = configRemoto();
+  if (!c || ajustes.remotoDesligado || remoto) return;
+  const base = `mascote-r/${c.sala}`;
+  const id = meuId();
+  const topicoStatus = `${base}/status/${id}`;
+  const status = (online) => JSON.stringify({
+    id, online, nome: ajustes.nomeNoPainel || os.userInfo().username, computador: os.hostname(), quando: Date.now(),
+  });
+  const cliente = mqtt.connect(c.servidor, {
+    clientId: `mascote-${id}-${crypto.randomBytes(3).toString('hex')}`,
+    username: c.usuario,
+    password: c.senha,
+    reconnectPeriod: 15000,
+    connectTimeout: 20000,
+    will: { topic: topicoStatus, payload: status(false), retain: true, qos: 1 }, // se cair, avisa sozinho
+  });
+  let avisou = false;
+  cliente.on('connect', () => {
+    cliente.publish(topicoStatus, status(true), { retain: true, qos: 1 });
+    cliente.subscribe([`${base}/cmd/${id}`, `${base}/cmd/todos`], { qos: 1 });
+    log('controle remoto conectado em', c.servidor);
+    if (!avisou) janela?.webContents.send('remoto', { acao: 'conectado', dono: c.dono });
+    avisou = true;
+  });
+  cliente.on('message', (_topico, dados) => {
+    let cmd;
+    try { cmd = JSON.parse(String(dados)); } catch { return; }
+    if (!cmd || !ACOES_REMOTAS.has(cmd.acao)) return;
+    if (cmd.acao === 'roubar' && !movedor) return;
+    const texto = typeof cmd.texto === 'string' ? cmd.texto.slice(0, 160) : undefined;
+    janela?.webContents.send('remoto', { acao: cmd.acao, texto, dono: c.dono });
+  });
+  cliente.on('error', (err) => log('controle remoto:', err.message));
+  remoto = { cliente, topicoStatus, status, dono: c.dono };
+  atualizarBandeja();
+}
+
+function desligarRemoto(pronto) {
+  if (!remoto) return pronto?.();
+  const { cliente, topicoStatus, status } = remoto;
+  remoto = null;
+  atualizarBandeja();
+  const fim = () => cliente.end(false, {}, () => pronto?.());
+  if (cliente.connected) cliente.publish(topicoStatus, status(false), { retain: true, qos: 1 }, fim);
+  else fim();
+}
+
 // ---------------------------------------------------------------- janela
 
 function relativo(b, r) {
@@ -348,9 +430,15 @@ function enviarConfig() {
   janela?.webContents.send('config', config());
 }
 
+let montarMenu = null;
+function atualizarBandeja() {
+  if (!bandeja) return;
+  bandeja.setToolTip(remoto ? `Mascote <R/> — 🎮 ${remoto.dono} pode controlar pelo painel` : 'Mascote <R/>');
+  if (montarMenu) bandeja.setContextMenu(montarMenu());
+}
+
 function criarBandeja() {
   bandeja = new Tray(nativeImage.createFromPath(path.join(__dirname, 'sprites', 'icone.png')));
-  bandeja.setToolTip('Mascote <R/>');
   bandeja.on('click', () => bandeja.popUpContextMenu());
   const comando = (nome) => () => janela?.webContents.send('comando', nome);
   const inicioAutomatico = () => app.getLoginItemSettings({ path: process.env.PORTABLE_EXECUTABLE_FILE || process.execPath }).openAtLogin;
@@ -383,10 +471,19 @@ function criarBandeja() {
         path: process.env.PORTABLE_EXECUTABLE_FILE || process.execPath,
       }),
     },
+    ...(configRemoto() ? [{
+      label: `Deixar ${configRemoto().dono} controlar pelo painel 🎮`, type: 'checkbox', checked: !ajustes.remotoDesligado,
+      click: (item) => {
+        salvarAjuste('remotoDesligado', !item.checked);
+        if (item.checked) ligarRemoto();
+        else desligarRemoto();
+      },
+    }] : []),
     { type: 'separator' },
     { label: 'Sair', click: () => app.quit() },
   ]);
-  bandeja.setContextMenu(montar());
+  montarMenu = montar;
+  atualizarBandeja();
   bandeja.on('right-click', () => bandeja.setContextMenu(montar()));
 }
 
@@ -447,8 +544,19 @@ if (!app.requestSingleInstanceLock()) {
     consulta = criarConsulta();
     criarJanela();
     criarBandeja();
+    janela.webContents.once('did-finish-load', ligarRemoto);
   });
   app.on('window-all-closed', () => app.quit());
+  // antes de fechar, avisa o painel que saiu (espera no máximo 1,5 s)
+  let saindo = false;
+  app.on('before-quit', (ev) => {
+    if (saindo || !remoto) return;
+    ev.preventDefault();
+    saindo = true;
+    const sair = () => app.quit();
+    setTimeout(sair, 1500);
+    desligarRemoto(sair);
+  });
   app.on('will-quit', () => {
     movedor?.fechar();
     consulta?.fechar();

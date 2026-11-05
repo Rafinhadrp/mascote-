@@ -149,7 +149,7 @@
   box-shadow:0 8px 24px rgba(0,0,0,.4);pointer-events:auto;user-select:none;transform-origin:50% 100%;scale:0;
   transition:scale .25s,opacity .4s}
 .mpet-bilhete.mpet-levando{scale:.6}
-.mpet-bilhete.mpet-pousado{scale:1;transition:transform .35s ease,scale .25s,opacity .4s}
+.mpet-bilhete.mpet-pousado{scale:1;transition:left .35s ease,top .35s ease,scale .25s,opacity .4s}
 .mpet-bilhete.mpet-sumindo{opacity:0}
 .mpet-bilhete img{width:24px;height:24px;image-rendering:pixelated;object-fit:cover;object-position:50% 70%}
 .mpet-bilhete .mpet-t{color:#58a6ff;font-weight:700;font-size:11px;margin-bottom:1px}
@@ -721,7 +721,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     }
 
     // Vai pra um canto da tela, fica pulando e chamando, e conta uma curiosidade.
-    async function anunciar(t) {
+    async function anunciar(t, { texto } = {}) {
       const W = larg(), a = desktop?.area;
       const baixo = (a ? a.bottom : alt()) - 4 * s;
       const canto = sortear([{ x: 16 * s, y: 40 * s }, { x: W - 16 * s, y: 40 * s }, { x: 16 * s, y: baixo }, { x: W - 16 * s, y: baixo }]);
@@ -730,7 +730,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       sprite('chamando');
       falar(frase('chamar'), 1600);
       await esperar(t, 1600);
-      falar(sacoDe('curiosidades', o.curiosidades), 5500);
+      falar(texto || sacoDe('curiosidades', o.curiosidades), limitar(2500 + (texto || '').length * 60, 5500, 9000));
       await esperar(t, 5500);
       sprite(sortear(['convencido', 'feliz', 'estiloso']));
       await esperar(t, 1300);
@@ -935,7 +935,7 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
 
     // ---- bilhetes: ele tira um bilhete do bolso onde estiver e leva até o canto de baixo,
     //      onde ficam as notificações do Windows. Ficam empilhados até você fechar no ×.
-    const BILHETE_W = 280;
+    const BILHETE_W = 220; // igual à largura do .mpet-bilhete no CSS
     const pousados = [];
 
     function cantoDosBilhetes() {
@@ -948,7 +948,8 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       let baixo = c.baixo;
       for (const nota of pousados) {
         baixo -= nota.offsetHeight;
-        nota.style.transform = `translate(${c.direita - BILHETE_W}px, ${baixo}px)`;
+        nota.style.left = `${c.direita - BILHETE_W}px`;
+        nota.style.top = `${baixo}px`;
         baixo -= 10;
       }
     }
@@ -974,17 +975,19 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
       return nota;
     }
 
-    async function deixarBilhete(t) {
+    async function deixarBilhete(t, { texto } = {}) {
       proximoBilhete = agora() + aleatorio(...o.intervaloBilhete) * 1000;
       sprite('pensando');
       falar(frase('bilhete'), 1800);
       await esperar(t, 900);
 
       // aparece na mão dele, pequenininho
-      const nota = criarBilhete(sacoDe('mensagens', o.mensagens));
+      const nota = criarBilhete(texto || sacoDe('mensagens', o.mensagens));
       const colar = () => {
         const m = maoPos();
-        nota.style.transform = `translate(${Math.round(m.x - BILHETE_W / 2)}px, ${Math.round(m.y - nota.offsetHeight + 4)}px)`;
+        // posição por left/top: o `scale` encolheria um translate junto e o bilhete fugia da mão
+        nota.style.left = `${Math.round(m.x - BILHETE_W / 2)}px`;
+        nota.style.top = `${Math.round(m.y - nota.offsetHeight + 4)}px`;
       };
       colar();
       requestAnimationFrame(() => nota.classList.add('mpet-levando'));
@@ -1057,9 +1060,18 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     }
     const ultimoClique = { moveu: false };
 
+    // Fala uma frase que mandaram (pelo painel de controle remoto, por exemplo).
+    async function recado(t, { texto } = {}) {
+      if (!texto) return;
+      sprite(sortear(['acenando', 'feliz', 'chamando']));
+      const ms = limitar(2000 + texto.length * 60, 3000, 9000);
+      falar(texto, ms);
+      await esperar(t, ms);
+    }
+
     const TRAVESSURAS = {
       roubar: roubarMouse, esconder, bilhete: deixarBilhete, dormir, programar, passear,
-      curiosidade: anunciar, violao: tocarViolao, dancar, moonwalk,
+      curiosidade: anunciar, violao: tocarViolao, dancar, moonwalk, falar: recado,
     };
     let ultimaHora = new Date().getHours();
     let comemorouSexta = false;
@@ -1288,11 +1300,13 @@ html.mpet-sem-cursor,html.mpet-sem-cursor *{cursor:none!important}`;
     cerebro();
 
     return {
-      travessura(nome) {
+      // opcoes.texto: a frase do recado, do bilhete ou da curiosidade
+      travessura(nome, opcoes = {}) {
         const fn = TRAVESSURAS[nome];
         if (!fn) throw new Error(`Travessura desconhecida: ${nome} (use ${Object.keys(TRAVESSURAS).join(', ')})`);
         if (nome === 'bilhete') proximoBilhete = 0;
-        reagir(fn);
+        const texto = typeof opcoes.texto === 'string' && opcoes.texto.trim() ? opcoes.texto.trim().slice(0, 160) : undefined;
+        reagir(texto ? (t) => fn(t, { texto }) : fn);
       },
       falar: (texto, ms) => falar(String(texto), ms),
       pausar(sim = true) { pausado = sim; if (sim && (segurando || largado)) { escapou = true; devolverCursor(); } },
